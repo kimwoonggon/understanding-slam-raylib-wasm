@@ -1,4 +1,5 @@
 build/
+build-*/
 build-wasm/
 *.DS_Store
 tmp_world_loader_test.png

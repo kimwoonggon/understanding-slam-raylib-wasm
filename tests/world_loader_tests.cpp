@@ -72,16 +72,20 @@ void TestMazeImageLoadingMatchesPixelThresholdRule() {
   Image image = LoadImage(mazePath.c_str());
   ASSERT_TRUE(image.data != nullptr, "maze image must load");
   if (image.width != 120 || image.height != 80) {
-    ImageResize(&image, 120, 80);
+    ImageResizeNN(&image, 120, 80);
   }
   Color* pixels = LoadImageColors(image);
   ASSERT_TRUE(pixels != nullptr, "maze image pixels must be readable");
 
+  int obstacleCount = 0;
   for (int y = 0; y < 80; ++y) {
     for (int x = 0; x < 120; ++x) {
       const Color c = pixels[y * 120 + x];
       const bool expectedObstacle = c.r < 32 && c.g < 32 && c.b < 32;
       const bool actualObstacle = world.IsObstacle(x, y);
+      if (actualObstacle) {
+        ++obstacleCount;
+      }
       if (expectedObstacle != actualObstacle) {
         UnloadImageColors(pixels);
         UnloadImage(image);
@@ -89,6 +93,7 @@ void TestMazeImageLoadingMatchesPixelThresholdRule() {
       }
     }
   }
+  ASSERT_TRUE(obstacleCount > 250, "maze obstacle density is too low after resize");
 
   UnloadImageColors(pixels);
   UnloadImage(image);

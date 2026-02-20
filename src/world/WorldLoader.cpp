@@ -20,7 +20,8 @@ core::WorldGrid BuildWorldFromImage(const std::string& imagePath, int width, int
   }
 
   if (image.width != width || image.height != height) {
-    ImageResize(&image, width, height);
+    // Match pygame.transform.scale behavior for map rasterization parity.
+    ImageResizeNN(&image, width, height);
   }
 
   core::WorldGrid world(width, height);
