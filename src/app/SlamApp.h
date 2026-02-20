@@ -1,0 +1,58 @@
+#pragma once
+
+#include <vector>
+
+#include <raylib.h>
+
+#include "app/Config.h"
+#include "core/OccupancyGridMap.h"
+#include "core/SimulatedLidar.h"
+#include "core/Types.h"
+#include "core/WorldGrid.h"
+#include "render/Renderer.h"
+#include "ui/UiControls.h"
+
+namespace slam::app {
+
+class SlamApp {
+ public:
+  explicit SlamApp(const AppConfig& config);
+  ~SlamApp();
+
+ int Run();
+
+ private:
+  void InitializeWorld();
+  void InitializeAudio();
+  void ResetMap();
+  void HandleInput();
+  void UpdateScan();
+  void UpdateAudio();
+  void DrawFrame() const;
+
+  AppConfig config_;
+  core::WorldGrid world_;
+  core::OccupancyGridMap slamMap_;
+  core::SimulatedLidar lidar_;
+  core::RobotPose pose_{};
+  ui::UiControls controls_{};
+
+  bool showWorldMap_ = false;
+  bool accumulateHits_ = false;
+  bool movedThisFrame_ = false;
+  bool collisionThisFrame_ = false;
+  std::vector<Vector2> hitHistory_;
+  std::vector<core::ScanSample> latestScan_;
+  std::vector<render::PixelRay> latestRays_;
+
+  bool audioEnabled_ = false;
+  bool scanSoundReady_ = false;
+  bool collisionSoundReady_ = false;
+  bool scanPlaying_ = false;
+  double lastCollisionTime_ = -10000.0;
+  double collisionCooldownSec_ = 0.2;
+  Sound scanSound_{};
+  Sound collisionSound_{};
+};
+
+}  // namespace slam::app

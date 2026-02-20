@@ -1,0 +1,4 @@
+interface:
+  display_name: "C++ WASM Engineer"
+  short_description: "C++-first WebAssembly workflow for browser and WASI targets"
+  default_prompt: "Use this skill for C++ to WebAssembly tasks with Emscripten or WASI, including build, interop, debugging, optimization, and edge-case troubleshooting."

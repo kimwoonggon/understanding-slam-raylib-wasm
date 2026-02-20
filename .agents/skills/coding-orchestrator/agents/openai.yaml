@@ -1,0 +1,4 @@
+interface:
+  display_name: "Coding Orchestrator"
+  short_description: "Plan-first coding workflow with verification and lessons loop"
+  default_prompt: "Use this skill to orchestrate non-trivial coding tasks with plan mode, task tracking, verification, and lesson capture."
