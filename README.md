@@ -51,6 +51,7 @@ brew install raylib
   - desktop raylib binary cannot be reused for WASM
 - optional env var:
   - `RAYLIB_WASM_ROOT=/path/to/raylib-wasm-install`
+  - if omitted, scripts auto-detect local `.toolchains/raylib-wasm` when present
 
 ## 4. Native Build and Run
 
@@ -103,6 +104,60 @@ Test coverage currently includes:
 - audio loop/cooldown controller behavior
 - native headless E2E smoke
 
+## Differential E2E: `ref2` pygame vs Raylib C++
+
+This runs both engines with the same WASD input sequence and compares per-frame pixel-change behavior.
+Both sides use the same world-grid file for deterministic map parity:
+- `tests/data/world_grid_120x80.txt`
+
+Build trace binary:
+```bash
+cmake -S . -B build-release -DCMAKE_BUILD_TYPE=Release
+cmake --build build-release -j --target slam-diff-trace
+```
+
+Run differential compare:
+```bash
+uv run --project ../understanding-slam-raylib-wasm-ref2 \
+  python scripts/e2e_compare_ref2_vs_raylib.py \
+  --cpp-trace-exe build-release/slam-diff-trace \
+  --ref2-root ../understanding-slam-raylib-wasm-ref2 \
+  --world-grid tests/data/world_grid_120x80.txt
+```
+
+Default pass criteria:
+- pose absolute tolerance: `1e-6`
+- per-frame changed-pixel diff tolerance: `40`
+
+Inputs are loaded from:
+- `tests/data/e2e_wasd_sequence.txt`
+
+## Triad E2E (WASM + Native + ref2)
+
+Build wasm/node trace:
+```bash
+./scripts/build_wasm_diff_trace.sh
+```
+
+Run triad compare:
+```bash
+uv run --project ../understanding-slam-raylib-wasm-ref2 \
+  python scripts/e2e_compare_ref2_vs_raylib.py \
+  --cpp-trace-exe build-release/slam-diff-trace \
+  --ref2-root ../understanding-slam-raylib-wasm-ref2 \
+  --world-grid tests/data/world_grid_120x80.txt \
+  --wasm-trace-js build-wasm-trace/slam-diff-trace.js
+```
+
+Full triad pipeline + report generation:
+```bash
+./scripts/run_triad_e2e.sh
+```
+
+Generated reports:
+- `tasks/reports/e2e-triad-*.md`
+- detailed logs under `tasks/reports/logs/*`
+
 ## 6. Debugging Guide
 
 ## Debug build
@@ -133,6 +188,11 @@ ctest --test-dir build -R slam-render-tests --output-on-failure
 ./scripts/check_wasm_prereqs.sh
 ```
 
+If raylib-wasm is not prepared yet:
+```bash
+./scripts/setup_raylib_wasm.sh
+```
+
 ## Step B: Build wasm artifact
 
 ```bash
@@ -146,7 +206,9 @@ Expected output artifact:
 ## Step C: Serve and open in Chrome
 
 ```bash
-python3 -m http.server --directory build-wasm 8080
+cmake -S . -B build-release -DCMAKE_BUILD_TYPE=Release
+cmake --build build-release --target slam-static-server -j
+./build-release/slam-static-server --root build-wasm --port 8080
 ```
 
 Open:
@@ -182,17 +244,25 @@ This verifies:
 │   └── sounds/
 ├── scripts/
 │   ├── check_wasm_prereqs.sh
-│   └── build_wasm.sh
+│   ├── build_wasm.sh
+│   ├── build_wasm_diff_trace.sh
+│   ├── setup_raylib_wasm.sh
+│   ├── wasm_e2e_smoke.sh
+│   ├── e2e_compare_ref2_vs_raylib.py
+│   └── run_triad_e2e.sh
 ├── src/
 │   ├── app/
 │   ├── audio/
 │   ├── core/
 │   ├── input/
 │   ├── render/
+│   ├── tools/
 │   ├── ui/
 │   └── world/
 ├── tests/
+│   └── data/
 └── tasks/
+    └── reports/
 ```
 
 ## 9. Troubleshooting
@@ -214,6 +284,10 @@ Set wasm raylib location:
 ```bash
 export RAYLIB_WASM_ROOT=/path/to/raylib-wasm-install
 ```
+or bootstrap and auto-detect:
+```bash
+./scripts/setup_raylib_wasm.sh
+```
 
 ## App runs but no map/sound
 
@@ -228,3 +302,20 @@ Verify files exist:
 - Deterministic C++ tests via CTest
 - Native E2E smoke in headless mode
 - WASM prerequisites treated as blocking gate before browser validation
+
+## 11. Clean Artifacts
+
+Remove local build artifacts:
+```bash
+rm -rf build build-* build-wasm build-wasm-trace
+```
+
+Remove local wasm toolchains/cache cloned by scripts:
+```bash
+rm -rf .toolchains .third_party
+```
+
+Remove local node artifacts:
+```bash
+rm -rf node_modules package-lock.json package.json
+```

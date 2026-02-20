@@ -34,15 +34,15 @@ std::vector<PixelRay> ScanSamplesToPixels(
     int cellSize,
     int offsetX) {
   const Vector2 origin{
-      static_cast<float>(static_cast<int>(pose.x * static_cast<float>(cellSize)) + offsetX),
-      static_cast<float>(static_cast<int>(pose.y * static_cast<float>(cellSize)))};
+      static_cast<float>(static_cast<int>(pose.x * static_cast<double>(cellSize)) + offsetX),
+      static_cast<float>(static_cast<int>(pose.y * static_cast<double>(cellSize)))};
   std::vector<PixelRay> output;
   output.reserve(scan.size());
 
   for (const core::ScanSample& sample : scan) {
-    const float angle = pose.theta + sample.relativeAngle;
-    const int endX = static_cast<int>((pose.x + std::cos(angle) * sample.distance) * cellSize) + offsetX;
-    const int endY = static_cast<int>((pose.y + std::sin(angle) * sample.distance) * cellSize);
+    const double angle = pose.theta + sample.relativeAngle;
+    const int endX = static_cast<int>((pose.x + std::cos(angle) * sample.distance) * static_cast<double>(cellSize)) + offsetX;
+    const int endY = static_cast<int>((pose.y + std::sin(angle) * sample.distance) * static_cast<double>(cellSize));
     output.push_back(PixelRay{
         .start = origin,
         .end = {static_cast<float>(endX), static_cast<float>(endY)},

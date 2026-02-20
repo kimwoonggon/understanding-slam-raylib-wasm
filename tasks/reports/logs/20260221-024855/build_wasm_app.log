@@ -1,0 +1,23 @@
+Setting up EMSDK environment (suppress these messages with EMSDK_QUIET=1)
+Adding directories to PATH:
+PATH += /Users/wgkim/emsdk
+PATH += /Users/wgkim/emsdk/upstream/emscripten
+
+Setting environment variables:
+PATH = /Users/wgkim/emsdk:/Users/wgkim/emsdk/upstream/emscripten:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/Library/Apple/usr/bin:/usr/local/share/dotnet:~/.dotnet/tools:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/Users/wgkim/.codex/tmp/arg0/codex-arg0lu39Lc:/Users/wgkim/.nvm/versions/node/v20.19.3/lib/node_modules/@openai/codex/node_modules/@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/path:/Users/wgkim/.nvm/versions/node/v20.19.3/bin:/Users/wgkim/.bun/bin:/Users/wgkim/.codeium/windsurf/bin:/opt/anaconda3/bin:/opt/anaconda3/condabin:/opt/homebrew/bin:/Users/wgkim/Library/Application Support/Code/User/globalStorage/github.copilot-chat/debugCommand:/Users/wgkim/Library/Application Support/Code/User/globalStorage/github.copilot-chat/copilotCli
+EMSDK = /Users/wgkim/emsdk
+EMSDK_NODE = /Users/wgkim/emsdk/node/22.16.0_64bit/bin/node
+EMSDK_PYTHON = /Users/wgkim/emsdk/python/3.13.3_64bit/bin/python3
+SSL_CERT_FILE = /Users/wgkim/emsdk/python/3.13.3_64bit/lib/python3.13/site-packages/certifi/cacert.pem
+[OK] Using raylib wasm from RAYLIB_WASM_ROOT=/Users/wgkim/Downloads/understanding-slam-raylib-wasm/.toolchains/raylib-wasm
+[OK] WASM prerequisites validated.
+[INFO] Configuring WASM build in /Users/wgkim/Downloads/understanding-slam-raylib-wasm/build-wasm
+emcmake: cmake -S /Users/wgkim/Downloads/understanding-slam-raylib-wasm -B /Users/wgkim/Downloads/understanding-slam-raylib-wasm/build-wasm -DCMAKE_BUILD_TYPE=Release -DSLAM_BUILD_TESTS=OFF -DRAYLIB_INCLUDE_DIR=/Users/wgkim/Downloads/understanding-slam-raylib-wasm/.toolchains/raylib-wasm/include -DRAYLIB_LIBRARY=/Users/wgkim/Downloads/understanding-slam-raylib-wasm/.toolchains/raylib-wasm/lib/libraylib.a -DCMAKE_TOOLCHAIN_FILE=/Users/wgkim/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DCMAKE_CROSSCOMPILING_EMULATOR=/Users/wgkim/emsdk/node/22.16.0_64bit/bin/node in directory /Users/wgkim/Downloads/understanding-slam-raylib-wasm
+-- Configuring done (0.4s)
+-- Generating done (0.0s)
+-- Build files have been written to: /Users/wgkim/Downloads/understanding-slam-raylib-wasm/build-wasm
+[INFO] Building WASM target
+[100%] Built target slam-raylib
+[OK] WASM build complete.
+[INFO] Output: /Users/wgkim/Downloads/understanding-slam-raylib-wasm/build-wasm/slam-raylib.html
+[INFO] Serve with: python3 -m http.server --directory /Users/wgkim/Downloads/understanding-slam-raylib-wasm/build-wasm 8080

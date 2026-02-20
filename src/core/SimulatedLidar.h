@@ -10,16 +10,16 @@ namespace slam::core {
 
 class SimulatedLidar {
  public:
-  SimulatedLidar(float maxRange, int beamCount, float stepSize);
+  SimulatedLidar(double maxRange, int beamCount, double stepSize);
 
   std::vector<ScanSample> Scan(const WorldGrid& world, const RobotPose& pose) const;
 
  private:
-  std::pair<float, bool> CastBeam(const WorldGrid& world, const RobotPose& pose, float angle) const;
+  std::pair<double, bool> CastBeam(const WorldGrid& world, const RobotPose& pose, double angle) const;
 
-  float maxRange_ = 0.0F;
+  double maxRange_ = 0.0;
   int beamCount_ = 0;
-  float stepSize_ = 0.0F;
+  double stepSize_ = 0.0;
 };
 
 }  // namespace slam::core

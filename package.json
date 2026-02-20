@@ -1,0 +1,18 @@
+{
+  "name": "understanding-slam-raylib-wasm",
+  "version": "1.0.0",
+  "description": "This repository migrates `ref2` (pygame SLAM simulation) to **Raylib C++** first, then to **WebAssembly (Chrome)**.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "playwright": "^1.58.2"
+  }
+}

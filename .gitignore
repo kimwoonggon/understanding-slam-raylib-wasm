@@ -1,6 +1,9 @@
 build/
 build-*/
 build-wasm/
+build-wasm-trace/
+.third_party/
+.toolchains/
 *.DS_Store
 tmp_world_loader_test.png
 node_modules/

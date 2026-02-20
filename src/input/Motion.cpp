@@ -7,13 +7,13 @@ namespace slam::input {
 
 core::RobotPose HandleMotion(
     const core::RobotPose& pose,
-    float speed,
+    double speed,
     bool upPressed,
     bool downPressed,
     bool leftPressed,
     bool rightPressed) {
-  float vx = 0.0F;
-  float vy = 0.0F;
+  double vx = 0.0;
+  double vy = 0.0;
 
   if (upPressed) {
     vy -= speed;
@@ -28,7 +28,7 @@ core::RobotPose HandleMotion(
     vx += speed;
   }
 
-  if (vx == 0.0F && vy == 0.0F) {
+  if (vx == 0.0 && vy == 0.0) {
     return pose;
   }
 
@@ -51,9 +51,9 @@ core::RobotPose ApplyMouseDragToPose(
   int lastFreeX = startX;
   int lastFreeY = startY;
   for (int step = 1; step <= maxDelta; ++step) {
-    const float t = static_cast<float>(step) / static_cast<float>(maxDelta);
-    const int probeX = static_cast<int>(std::round(static_cast<float>(startX) + static_cast<float>(targetX - startX) * t));
-    const int probeY = static_cast<int>(std::round(static_cast<float>(startY) + static_cast<float>(targetY - startY) * t));
+    const double t = static_cast<double>(step) / static_cast<double>(maxDelta);
+    const int probeX = static_cast<int>(std::round(static_cast<double>(startX) + static_cast<double>(targetX - startX) * t));
+    const int probeY = static_cast<int>(std::round(static_cast<double>(startY) + static_cast<double>(targetY - startY) * t));
     if (world.IsObstacle(probeX, probeY)) {
       break;
     }
@@ -62,8 +62,8 @@ core::RobotPose ApplyMouseDragToPose(
   }
 
   return core::RobotPose{
-      .x = static_cast<float>(lastFreeX),
-      .y = static_cast<float>(lastFreeY),
+      .x = static_cast<double>(lastFreeX),
+      .y = static_cast<double>(lastFreeY),
       .theta = pose.theta,
   };
 }

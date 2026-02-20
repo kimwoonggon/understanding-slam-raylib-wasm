@@ -60,7 +60,7 @@ void OccupancyGridMap::IntegrateScan(const RobotPose& pose, const std::vector<Sc
   const std::pair<int, int> start{static_cast<int>(pose.x), static_cast<int>(pose.y)};
 
   for (const ScanSample& sample : scan) {
-    const float angle = pose.theta + sample.relativeAngle;
+    const double angle = pose.theta + sample.relativeAngle;
     const int endX = static_cast<int>(pose.x + std::cos(angle) * sample.distance);
     const int endY = static_cast<int>(pose.y + std::sin(angle) * sample.distance);
     const std::vector<std::pair<int, int>> ray = Bresenham(start, {endX, endY});

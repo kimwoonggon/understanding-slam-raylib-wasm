@@ -66,6 +66,7 @@ if(EMSCRIPTEN)
     "SHELL:-sUSE_GLFW=3"
     "SHELL:-sALLOW_MEMORY_GROWTH=1"
     "SHELL:-sASSERTIONS=1"
+    "SHELL:-sASYNCIFY"
     "SHELL:-sWASM=1"
     "SHELL:-sFORCE_FILESYSTEM=1"
     "SHELL:--preload-file ${CMAKE_SOURCE_DIR}/assets@/assets"
@@ -150,6 +151,22 @@ if(SLAM_BUILD_TESTS)
   add_test(NAME slam-config-tests COMMAND slam-config-tests)
 
   if(NOT EMSCRIPTEN)
+    add_executable(slam-static-server
+      src/tools/StaticFileServer.cpp
+    )
+    target_compile_options(slam-static-server PRIVATE -Wall -Wextra -Wpedantic)
+
+    add_executable(slam-diff-trace
+      src/tools/DifferentialTrace.cpp
+      src/app/AssetPaths.cpp
+      src/core/WorldGrid.cpp
+      src/core/SimulatedLidar.cpp
+      src/core/OccupancyGridMap.cpp
+      src/input/Motion.cpp
+    )
+    target_include_directories(slam-diff-trace PRIVATE src)
+    target_compile_options(slam-diff-trace PRIVATE -Wall -Wextra -Wpedantic)
+
     add_test(
       NAME slam-native-e2e
       COMMAND ${CMAKE_COMMAND} -E env SLAM_HEADLESS_STEPS=120 $<TARGET_FILE:slam-raylib>

@@ -7,7 +7,7 @@ namespace slam::input {
 
 core::RobotPose HandleMotion(
     const core::RobotPose& pose,
-    float speed,
+    double speed,
     bool upPressed,
     bool downPressed,
     bool leftPressed,

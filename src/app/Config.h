@@ -14,13 +14,13 @@ struct WorldConfig {
 };
 
 struct LidarConfig {
-  float maxRange = 30.0F;
+  double maxRange = 30.0;
   int beamCount = 72;
-  float stepSize = 1.0F;
+  double stepSize = 1.0;
 };
 
 struct MotionConfig {
-  float keyboardSpeed = 0.5F;
+  double keyboardSpeed = 0.5;
 };
 
 struct AppConfig {

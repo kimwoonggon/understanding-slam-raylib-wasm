@@ -4,11 +4,19 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD_DIR="${BUILD_DIR:-${ROOT_DIR}/build-wasm}"
 PORT="${PORT:-8090}"
+SERVER_BUILD_DIR="${SERVER_BUILD_DIR:-${ROOT_DIR}/build-release}"
+SERVER_EXE="${SERVER_EXE:-${SERVER_BUILD_DIR}/slam-static-server}"
 
 HTML_FILE="${BUILD_DIR}/slam-raylib.html"
 if [[ ! -f "${HTML_FILE}" ]]; then
   echo "[ERROR] Missing ${HTML_FILE}. Build wasm first: ./scripts/build_wasm.sh" >&2
   exit 1
+fi
+
+if [[ ! -x "${SERVER_EXE}" ]]; then
+  echo "[INFO] Building C++ static server (${SERVER_EXE})"
+  cmake -S "${ROOT_DIR}" -B "${SERVER_BUILD_DIR}" -DCMAKE_BUILD_TYPE=Release >/dev/null
+  cmake --build "${SERVER_BUILD_DIR}" --target slam-static-server -j >/dev/null
 fi
 
 if ! command -v node >/dev/null 2>&1; then
@@ -21,18 +29,19 @@ if ! command -v npx >/dev/null 2>&1; then
   exit 1
 fi
 
-if ! npx playwright --version >/dev/null 2>&1; then
-  cat >&2 <<'MSG'
-[ERROR] Playwright is not available.
-Install once in this repository:
-  npm init -y
-  npm i -D playwright
-MSG
-  exit 1
+if ! node -e "require('playwright')" >/dev/null 2>&1; then
+  echo "[INFO] Installing local playwright dependency"
+  if [[ ! -f "${ROOT_DIR}/package.json" ]]; then
+    npm init -y >/dev/null
+  fi
+  npm i -D playwright >/dev/null
 fi
 
+echo "[INFO] Ensuring Playwright Chromium is installed"
+npx playwright install chromium >/dev/null
+
 echo "[INFO] Serving ${BUILD_DIR} on http://127.0.0.1:${PORT}"
-python3 -m http.server --directory "${BUILD_DIR}" "${PORT}" >/tmp/slam_wasm_server.log 2>&1 &
+"${SERVER_EXE}" --root "${BUILD_DIR}" --port "${PORT}" >/tmp/slam_wasm_server.log 2>&1 &
 SERVER_PID=$!
 trap 'kill ${SERVER_PID} >/dev/null 2>&1 || true' EXIT
 
@@ -42,7 +51,16 @@ const { chromium } = require('playwright');
 (async () => {
   const port = process.env.PORT || '8090';
   const url = `http://127.0.0.1:${port}/slam-raylib.html`;
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({
+    headless: true,
+    args: [
+      '--use-angle=swiftshader',
+      '--use-gl=angle',
+      '--enable-webgl',
+      '--ignore-gpu-blocklist',
+      '--disable-gpu-sandbox'
+    ],
+  });
   const page = await browser.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(String(e)));

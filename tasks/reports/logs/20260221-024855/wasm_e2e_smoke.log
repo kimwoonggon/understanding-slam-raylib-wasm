@@ -1,0 +1,3 @@
+[INFO] Ensuring Playwright Chromium is installed
+[INFO] Serving /Users/wgkim/Downloads/understanding-slam-raylib-wasm/build-wasm on http://127.0.0.1:8090
+[OK] wasm e2e smoke passed (canvas visible, no runtime errors).

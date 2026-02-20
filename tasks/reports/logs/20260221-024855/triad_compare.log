@@ -1,0 +1,13 @@
+[raylib-vs-ref2] frames=180
+[raylib-vs-ref2] left_first_hash=9014a2abb9fcf2e0 left_last_hash=69bbfcca83944d51 right_first_hash=27221768e96e7c3e right_last_hash=e584415cb50377b3
+[raylib-vs-ref2] hash_mismatch_frames=180/180 strict_hash=False
+[raylib-vs-ref2] changed_diff_max=14 changed_diff_mean=0.422 allowed_max=40
+[wasm-vs-ref2] frames=180
+[wasm-vs-ref2] left_first_hash=9014a2abb9fcf2e0 left_last_hash=69bbfcca83944d51 right_first_hash=27221768e96e7c3e right_last_hash=e584415cb50377b3
+[wasm-vs-ref2] hash_mismatch_frames=180/180 strict_hash=False
+[wasm-vs-ref2] changed_diff_max=0 changed_diff_mean=0.000 allowed_max=40
+[wasm-vs-raylib] frames=180
+[wasm-vs-raylib] left_first_hash=9014a2abb9fcf2e0 left_last_hash=69bbfcca83944d51 right_first_hash=9014a2abb9fcf2e0 right_last_hash=69bbfcca83944d51
+[wasm-vs-raylib] hash_mismatch_frames=14/180 strict_hash=False
+[wasm-vs-raylib] changed_diff_max=14 changed_diff_mean=0.422 allowed_max=40
+status=PASS
