@@ -1,9 +1,37 @@
+# Build artifacts
 build/
 build-*/
 build-wasm/
 build-wasm-trace/
+CMakeCache.txt
+compile_commands.json
+
+# Local toolchains / vendor builds
 .third_party/
 .toolchains/
-*.DS_Store
-tmp_world_loader_test.png
+
+# Node / browser test artifacts
 node_modules/
+playwright-report/
+test-results/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Generated logs/reports
+*.log
+tasks/reports/logs/
+
+# Python cache
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Editor / OS files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Local temp files
+tmp_world_loader_test.png
