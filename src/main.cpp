@@ -9,6 +9,10 @@
 
 #include <cstdlib>
 
+/**
+ * @brief Program entrypoint.
+ * @return Process exit code.
+ */
 int main() {
   const slam::app::AppConfig config = slam::app::AppConfig::Default();
 

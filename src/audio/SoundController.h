@@ -14,10 +14,18 @@ namespace slam::audio {
  */
 class SoundLike {
  public:
+  /**
+   * @brief Virtual destructor.
+   */
   virtual ~SoundLike() = default;
-  /// Start playback with loop semantics defined by implementation.
+  /**
+   * @brief Start playback with implementation-defined loop semantics.
+   * @param loops Loop count policy passed to backend sound object.
+   */
   virtual void Play(int loops) = 0;
-  /// Stop playback.
+  /**
+   * @brief Stop playback.
+   */
   virtual void Stop() = 0;
 };
 
@@ -36,11 +44,18 @@ class SoundController {
       std::function<double()> timeFn,
       double collisionCooldownSec);
 
-  /// Update scan-loop playback based on current movement activity.
+  /**
+   * @brief Update scan-loop playback based on current movement activity.
+   * @param active True when scan loop should be audible.
+   */
   void UpdateScan(bool active);
-  /// Play collision sound with cooldown gating.
+  /**
+   * @brief Play collision sound with cooldown gating.
+   */
   void PlayCollision();
-  /// Stop active sounds and reset runtime state.
+  /**
+   * @brief Stop active sounds and reset runtime state.
+   */
   void Shutdown();
 
  private:

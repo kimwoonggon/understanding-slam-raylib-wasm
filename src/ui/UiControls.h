@@ -21,19 +21,33 @@ struct UiControls {
   Rectangle accumulate{};
 };
 
-/// Create reset button geometry for split-panel layouts.
+/**
+ * @brief Create reset button geometry for split-panel layouts.
+ */
 Rectangle CreateResetButtonRect(int panelWidth, int windowHeight);
-/// Create world-toggle button geometry for split-panel layouts.
+/**
+ * @brief Create world-toggle button geometry for split-panel layouts.
+ */
 Rectangle CreateToggleWorldButtonRect(int panelWidth, int windowHeight);
-/// Create accumulate-toggle button geometry for split-panel layouts.
+/**
+ * @brief Create accumulate-toggle button geometry for split-panel layouts.
+ */
 Rectangle CreateAccumulateButtonRect(int panelWidth, int windowHeight);
-/// Create a full set of control rectangles for split-panel layouts.
+/**
+ * @brief Create a full set of control rectangles for split-panel layouts.
+ */
 UiControls CreateUiControls(int panelWidth, int windowHeight);
-/// Create control rectangles for single-panel window layouts.
+/**
+ * @brief Create control rectangles for single-panel window layouts.
+ */
 UiControls CreateUiControlsForWindow(int windowWidth, int windowHeight);
-/// Return true when the mouse is on the reset button.
+/**
+ * @brief Return true when mouse position is on the reset button.
+ */
 bool IsResetButtonClick(Vector2 mousePos, const Rectangle& buttonRect);
-/// Return true when reset should trigger from keyboard/mouse input.
+/**
+ * @brief Return true when reset should trigger from keyboard/mouse input.
+ */
 bool ShouldResetFromInputs(bool iPressed, bool leftClickPressed, Vector2 mousePos, const Rectangle& resetRect);
 
 }  // namespace slam::ui

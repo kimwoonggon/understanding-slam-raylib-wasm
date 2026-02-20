@@ -55,6 +55,9 @@ class WorldGrid {
   const std::vector<std::uint8_t>& ObstacleData() const { return obstacles_; }
 
  private:
+  /**
+   * @brief Convert 2D coordinate to row-major index.
+   */
   int Index(int x, int y) const;
 
   int width_ = 0;

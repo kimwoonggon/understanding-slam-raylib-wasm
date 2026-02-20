@@ -43,7 +43,13 @@ class OccupancyGridMap {
   const std::vector<std::int16_t>& Data() const { return grid_; }
 
  private:
+  /**
+   * @brief Check whether a coordinate is inside map bounds.
+   */
   bool InBounds(int x, int y) const;
+  /**
+   * @brief Convert 2D coordinate to row-major index.
+   */
   int Index(int x, int y) const;
 
   int width_ = 0;

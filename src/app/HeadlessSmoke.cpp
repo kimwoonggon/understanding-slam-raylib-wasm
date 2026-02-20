@@ -14,6 +14,12 @@
 
 namespace slam::app {
 
+/**
+ * @brief Run a deterministic headless simulation for smoke validation.
+ * @param config Runtime configuration.
+ * @param steps Number of simulation steps.
+ * @return 0 on success; non-zero if map integration evidence is insufficient.
+ */
 int RunHeadlessSmoke(const AppConfig& config, int steps) {
   if (steps <= 0) {
     return 0;

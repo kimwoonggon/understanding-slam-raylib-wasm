@@ -43,6 +43,9 @@ constexpr Rgb kHitAndRobot{0, 255, 0};
 
 using FrameBuffer = std::vector<std::uint8_t>;
 
+/**
+ * @brief Write one RGB pixel if inside framebuffer bounds.
+ */
 void SetPixel(FrameBuffer& frame, int x, int y, Rgb color) {
   if (x < 0 || x >= kImageWidth || y < 0 || y >= kImageHeight) {
     return;
@@ -53,6 +56,9 @@ void SetPixel(FrameBuffer& frame, int x, int y, Rgb color) {
   frame[index + 2] = color.b;
 }
 
+/**
+ * @brief Draw a filled rectangle in the framebuffer.
+ */
 void DrawRect(FrameBuffer& frame, int x, int y, int width, int height, Rgb color) {
   for (int yy = 0; yy < height; ++yy) {
     for (int xx = 0; xx < width; ++xx) {
@@ -61,6 +67,9 @@ void DrawRect(FrameBuffer& frame, int x, int y, int width, int height, Rgb color
   }
 }
 
+/**
+ * @brief Draw a line segment using Bresenham stepping.
+ */
 void DrawLine(FrameBuffer& frame, int x0, int y0, int x1, int y1, Rgb color) {
   int dx = std::abs(x1 - x0);
   int dy = std::abs(y1 - y0);
@@ -85,6 +94,9 @@ void DrawLine(FrameBuffer& frame, int x0, int y0, int x1, int y1, Rgb color) {
   }
 }
 
+/**
+ * @brief Draw a filled circle in the framebuffer.
+ */
 void DrawFilledCircle(FrameBuffer& frame, int centerX, int centerY, int radius, Rgb color) {
   const int radiusSquared = radius * radius;
   for (int dy = -radius; dy <= radius; ++dy) {
@@ -96,6 +108,9 @@ void DrawFilledCircle(FrameBuffer& frame, int centerX, int centerY, int radius, 
   }
 }
 
+/**
+ * @brief Trim ASCII whitespace at both ends of a string.
+ */
 std::string Trim(const std::string& input) {
   std::size_t first = 0;
   while (first < input.size() && std::isspace(static_cast<unsigned char>(input[first])) != 0) {
@@ -108,6 +123,9 @@ std::string Trim(const std::string& input) {
   return input.substr(first, last - first);
 }
 
+/**
+ * @brief Load key-input tokens from a text sequence file.
+ */
 std::vector<std::string> LoadInputSequence(const std::string& path) {
   std::ifstream file(path);
   if (!file) {
@@ -133,6 +151,9 @@ std::vector<std::string> LoadInputSequence(const std::string& path) {
   return sequence;
 }
 
+/**
+ * @brief Load world occupancy from an ASCII grid file.
+ */
 slam::core::WorldGrid LoadWorldFromGridFile(const std::string& path) {
   std::ifstream file(path);
   if (!file) {
@@ -174,6 +195,9 @@ slam::core::WorldGrid LoadWorldFromGridFile(const std::string& path) {
   return world;
 }
 
+/**
+ * @brief Compute FNV-1a 64-bit hash for a frame buffer.
+ */
 std::uint64_t Fnv1a64(const FrameBuffer& frame) {
   std::uint64_t hash = 1469598103934665603ULL;
   for (std::uint8_t byte : frame) {
@@ -183,6 +207,9 @@ std::uint64_t Fnv1a64(const FrameBuffer& frame) {
   return hash;
 }
 
+/**
+ * @brief Count changed pixels between two RGB frame buffers.
+ */
 int CountChangedPixels(const FrameBuffer& previous, const FrameBuffer& current) {
   const std::size_t byteCount = std::min(previous.size(), current.size());
   int changed = 0;
@@ -194,6 +221,9 @@ int CountChangedPixels(const FrameBuffer& previous, const FrameBuffer& current) 
   return changed;
 }
 
+/**
+ * @brief Render one simulation frame into an RGB framebuffer.
+ */
 FrameBuffer RenderSimulationFrame(
     const slam::core::OccupancyGridMap& map,
     const slam::core::RobotPose& pose,
@@ -238,22 +268,35 @@ FrameBuffer RenderSimulationFrame(
   return frame;
 }
 
+/**
+ * @brief Return true when an input token contains a key character.
+ */
 bool HasKey(const std::string& token, char key) {
   return token.find(key) != std::string::npos;
 }
 
+/**
+ * @brief Format a 64-bit value as fixed-width hexadecimal.
+ */
 std::string ToHex64(std::uint64_t value) {
   std::ostringstream out;
   out << std::hex << std::nouppercase << std::setw(16) << std::setfill('0') << value;
   return out.str();
 }
 
+/**
+ * @brief Print command-line usage.
+ */
 void PrintUsage(const char* argv0) {
   std::cerr << "Usage: " << argv0 << " --inputs <path> [--world-grid <path>]\n";
 }
 
 }  // namespace
 
+/**
+ * @brief Differential trace tool entrypoint.
+ * @return Process exit code.
+ */
 int main(int argc, char** argv) {
   try {
     std::string inputsPath;

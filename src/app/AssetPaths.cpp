@@ -10,6 +10,11 @@
 
 namespace slam::app {
 
+/**
+ * @brief Resolve an asset path across known runtime locations.
+ * @param relativePath Project-relative asset path.
+ * @return First existing candidate path, else the original input.
+ */
 std::string ResolveAssetPath(const std::string& relativePath) {
   namespace fs = std::filesystem;
 

@@ -35,6 +35,13 @@ class SimulatedLidar {
   std::vector<ScanSample> Scan(const WorldGrid& world, const RobotPose& pose) const;
 
  private:
+  /**
+   * @brief Cast one beam at an absolute angle.
+   * @param world Ground-truth world.
+   * @param pose Robot pose.
+   * @param angle Absolute beam angle in radians.
+   * @return Pair of measured distance and hit flag.
+   */
   std::pair<double, bool> CastBeam(const WorldGrid& world, const RobotPose& pose, double angle) const;
 
   double maxRange_ = 0.0;

@@ -9,6 +9,9 @@
 
 namespace slam::world {
 
+/**
+ * @brief Build the procedural fallback world layout.
+ */
 core::WorldGrid BuildDemoWorld(int width, int height) {
   core::WorldGrid world = core::WorldGrid::WithBorderWalls(width, height);
   world.AddRectangle(20, 12, 15, 3);
@@ -18,6 +21,13 @@ core::WorldGrid BuildDemoWorld(int width, int height) {
   return world;
 }
 
+/**
+ * @brief Build world grid from a map image.
+ * @param imagePath Source image path.
+ * @param width Target world width in cells.
+ * @param height Target world height in cells.
+ * @return World grid generated from rasterized obstacles.
+ */
 core::WorldGrid BuildWorldFromImage(const std::string& imagePath, int width, int height) {
   Image image = LoadImage(imagePath.c_str());
   if (image.data == nullptr) {
