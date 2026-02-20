@@ -1,3 +1,8 @@
+/**
+ * @file SoundController.cpp
+ * @brief Audio controller policy implementation for scan/collision sounds.
+ */
+
 #include "audio/SoundController.h"
 
 #include <utility>

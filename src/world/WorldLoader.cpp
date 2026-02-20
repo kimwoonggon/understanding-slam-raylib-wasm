@@ -1,3 +1,8 @@
+/**
+ * @file WorldLoader.cpp
+ * @brief World construction from procedural defaults or map images.
+ */
+
 #include "world/WorldLoader.h"
 
 #include <raylib.h>

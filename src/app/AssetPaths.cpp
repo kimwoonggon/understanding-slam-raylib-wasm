@@ -1,3 +1,8 @@
+/**
+ * @file AssetPaths.cpp
+ * @brief Asset path resolution implementation across native and WASM layouts.
+ */
+
 #include "app/AssetPaths.h"
 
 #include <filesystem>

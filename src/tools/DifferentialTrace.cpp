@@ -1,3 +1,8 @@
+/**
+ * @file DifferentialTrace.cpp
+ * @brief Offline trace runner for differential movement/scan comparisons.
+ */
+
 #include <algorithm>
 #include <cctype>
 #include <cmath>

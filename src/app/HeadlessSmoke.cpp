@@ -1,3 +1,8 @@
+/**
+ * @file HeadlessSmoke.cpp
+ * @brief Deterministic headless simulation loop for smoke validation.
+ */
+
 #include "app/HeadlessSmoke.h"
 
 #include <cmath>

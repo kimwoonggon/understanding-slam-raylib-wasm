@@ -1,3 +1,8 @@
+/**
+ * @file SimulatedLidar.cpp
+ * @brief Ray-march lidar simulation implementation.
+ */
+
 #include "core/SimulatedLidar.h"
 
 #include <cmath>

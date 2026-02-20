@@ -1,3 +1,8 @@
+/**
+ * @file OccupancyGridMap.cpp
+ * @brief Occupancy integration and Bresenham-based ray updates.
+ */
+
 #include "core/OccupancyGridMap.h"
 
 #include <cmath>

@@ -12,14 +12,32 @@
 #include "render/Renderer.h"
 #include "ui/UiControls.h"
 
+/**
+ * @file SlamApp.h
+ * @brief Interactive raylib SLAM application orchestration.
+ */
+
 namespace slam::app {
 
+/**
+ * @brief Owns application lifecycle, input handling, scan updates, and rendering.
+ */
 class SlamApp {
  public:
+  /**
+   * @brief Construct the app with runtime configuration.
+   */
   explicit SlamApp(const AppConfig& config);
+  /**
+   * @brief Release runtime resources.
+   */
   ~SlamApp();
 
- int Run();
+  /**
+   * @brief Execute the interactive frame loop.
+   * @return Process-style exit code.
+   */
+  int Run();
 
  private:
   void InitializeWorld();

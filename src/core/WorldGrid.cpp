@@ -1,3 +1,8 @@
+/**
+ * @file WorldGrid.cpp
+ * @brief World obstacle-grid implementation.
+ */
+
 #include "core/WorldGrid.h"
 
 #include <algorithm>

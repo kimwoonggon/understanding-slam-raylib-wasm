@@ -1,3 +1,8 @@
+/**
+ * @file main.cpp
+ * @brief Application entrypoint selecting interactive or headless execution.
+ */
+
 #include "app/Config.h"
 #include "app/HeadlessSmoke.h"
 #include "app/SlamApp.h"

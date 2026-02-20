@@ -1,3 +1,8 @@
+/**
+ * @file Renderer.cpp
+ * @brief World/map/lidar drawing and hit-history rendering helpers.
+ */
+
 #include "render/Renderer.h"
 
 #include <algorithm>

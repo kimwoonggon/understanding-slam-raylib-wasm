@@ -1,3 +1,8 @@
+/**
+ * @file SlamApp.cpp
+ * @brief Interactive app lifecycle, input, rendering, and audio integration.
+ */
+
 #include "app/SlamApp.h"
 
 #include <cmath>

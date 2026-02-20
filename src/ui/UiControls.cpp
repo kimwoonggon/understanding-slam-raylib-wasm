@@ -1,3 +1,8 @@
+/**
+ * @file UiControls.cpp
+ * @brief UI button geometry and input predicate implementations.
+ */
+
 #include "ui/UiControls.h"
 
 #include <algorithm>

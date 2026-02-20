@@ -1,3 +1,8 @@
+/**
+ * @file Motion.cpp
+ * @brief Motion update helpers for keyboard and drag interactions.
+ */
+
 #include "input/Motion.h"
 
 #include <algorithm>

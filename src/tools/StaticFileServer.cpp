@@ -1,3 +1,8 @@
+/**
+ * @file StaticFileServer.cpp
+ * @brief Minimal static HTTP server for local WASM artifact hosting.
+ */
+
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
