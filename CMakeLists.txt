@@ -69,6 +69,8 @@ if(EMSCRIPTEN)
     "SHELL:-sASYNCIFY"
     "SHELL:-sWASM=1"
     "SHELL:-sFORCE_FILESYSTEM=1"
+    "SHELL:-sEXPORTED_RUNTIME_METHODS=['HEAPF32']"
+    "SHELL:--shell-file ${CMAKE_SOURCE_DIR}/web/emshell.html"
     "SHELL:--preload-file ${CMAKE_SOURCE_DIR}/assets@/assets"
   )
 endif()

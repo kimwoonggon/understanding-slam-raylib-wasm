@@ -27,6 +27,7 @@ Reference repositories:
   - reset map: `I`
   - toggle world/map: `M`
   - hit mode live/accumulate: `G`
+  - lock/hide mouse cursor: `P` (browser pointer-lock aware)
 - Asset loading
   - world: `assets/maze.png` if present, otherwise demo world fallback
   - sound: `assets/sounds/scan_loop.wav`, `assets/sounds/collision_beep.wav` (if present)
@@ -214,6 +215,27 @@ cmake --build build-release --target slam-static-server -j
 Open:
 - `http://localhost:8080/slam-raylib.html`
 
+Phone/LAN access:
+```bash
+./build-release/slam-static-server --root build-wasm --host 0.0.0.0 --port 8080
+```
+Then open `http://<your-computer-ip>:8080/slam-raylib.html` from phone on same network.
+
+## WASM UI Customization
+
+Primary file:
+- `web/emshell.html`
+
+Where to modify:
+- "Powered by Emscripten" replacement text:
+  - `web/emshell.html` in `#status` content
+- Canvas size policy:
+  - `web/emshell.html` CSS variables `--canvas-width`, `--canvas-height`
+  - `web/emshell.html` JS flag `AUTO_RESIZE_CANVAS`
+- Mouse lock/hide behavior:
+  - runtime hotkey logic in `src/app/SlamApp.cpp` (`KEY_P`)
+  - pointer-lock request/release bridge in the same file under `#ifdef EMSCRIPTEN`
+
 ## Step D: WASM browser E2E smoke (headless)
 
 ```bash
@@ -224,7 +246,11 @@ chmod +x scripts/wasm_e2e_smoke.sh
 This verifies:
 1. page loads in headless Chromium
 2. canvas is present
-3. no runtime/page console errors are emitted
+3. WASM VFS contains map/sound assets
+4. keyboard hold works (`W/A/S/D`) and key-release state recovers
+5. drag continues to work after clicking/tapping `RESET`, `WORLD`, `GREEN` controls
+6. audio runtime initializes without browser-side aborts
+7. no runtime/page console errors are emitted
 
 ## Important WASM Notes
 
@@ -259,6 +285,8 @@ This verifies:
 │   ├── tools/
 │   ├── ui/
 │   └── world/
+├── web/
+│   └── emshell.html
 ├── tests/
 │   └── data/
 └── tasks/

@@ -87,6 +87,7 @@ em++ src/main.cpp -std=c++20 -O2 \
 2. Use `EMSCRIPTEN_KEEPALIVE` for functions that may be removed by dead-code elimination.
 3. Pass only needed exports via `-sEXPORTED_FUNCTIONS`.
 4. Remember export names in `EXPORTED_FUNCTIONS` are prefixed with `_`.
+5. When browser/runtime errors mention missing runtime objects (for example `'HEAPF32' was not exported`), add only the required entries to `-sEXPORTED_RUNTIME_METHODS`.
 
 Minimal example:
 
@@ -103,6 +104,12 @@ em++ add.cpp -O2 \
   -sEXPORTED_FUNCTIONS='["_add"]' \
   -sEXPORTED_RUNTIME_METHODS='["ccall"]' \
   -o add.js
+```
+
+Runtime-method example for raylib/miniaudio web paths:
+
+```bash
+-sEXPORTED_RUNTIME_METHODS='["HEAPF32"]'
 ```
 
 ## 6. Memory and Stack Defaults to Revisit

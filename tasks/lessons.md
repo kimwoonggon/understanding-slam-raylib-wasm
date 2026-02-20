@@ -23,3 +23,9 @@
 - Correction: README must contain detailed run/build/test/debug/WASM instructions, similar in depth to ref2.
 - Rule to prevent recurrence: After each major milestone, update README with exact commands and troubleshooting notes before marking the step complete.
 - Applied in: Native+WASM baseline documentation for this repository.
+- Correction: WASM validation must include real interactive input (keyboard hold, control clicks, drag continuity), not only page-load smoke.
+- Rule to prevent recurrence: For UI/runtime bug reports, extend e2e to simulate the reported interaction path before declaring fix complete.
+- Applied in: `scripts/wasm_e2e_smoke.sh` (keyboard hold + post-control drag + audio checks).
+- Correction: Every encountered runtime/build error must be logged in an error report document.
+- Rule to prevent recurrence: Append each new failure with symptom, root cause, fix, and verification evidence in `tasks/reports/error-report.md` during the same work cycle.
+- Applied in: WASM audio/export/runtime and e2e stability fixes on 2026-02-20.

@@ -116,3 +116,7 @@ Examples:
 3. Confirm persistent files survive reload.
 4. Confirm JS <-> C++ calls preserve expected types.
 5. Confirm wasm loads via correct MIME and origin policy.
+6. Confirm keyboard hold remains active during press and resets after keyup.
+7. Confirm UI control click/tap does not lock drag input (`mouse` and `touch` paths).
+8. In browser automation, map canvas-internal coordinates through `getBoundingClientRect()` before pointer/touch injection.
+9. Confirm audio initializes from a real user gesture and no runtime-method export errors appear in console.

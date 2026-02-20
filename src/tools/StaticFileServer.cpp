@@ -159,15 +159,18 @@ int ParsePort(const std::string& value) {
 int main(int argc, char** argv) {
   std::filesystem::path root = std::filesystem::current_path();
   int port = 8090;
+  std::string host = "127.0.0.1";
 
   for (int i = 1; i < argc; ++i) {
     const std::string arg = argv[i];
     if (arg == "--root" && i + 1 < argc) {
       root = argv[++i];
+    } else if (arg == "--host" && i + 1 < argc) {
+      host = argv[++i];
     } else if (arg == "--port" && i + 1 < argc) {
       port = ParsePort(argv[++i]);
     } else if (arg == "--help") {
-      std::cout << "Usage: " << argv[0] << " [--root <directory>] [--port <1-65535>]\n";
+      std::cout << "Usage: " << argv[0] << " [--root <directory>] [--host <ipv4>] [--port <1-65535>]\n";
       return 0;
     } else {
       std::cerr << "Unknown argument: " << arg << '\n';
@@ -196,7 +199,15 @@ int main(int argc, char** argv) {
 
   sockaddr_in addr{};
   addr.sin_family = AF_INET;
-  addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+  if (host == "0.0.0.0") {
+    addr.sin_addr.s_addr = htonl(INADDR_ANY);
+  } else {
+    if (inet_pton(AF_INET, host.c_str(), &addr.sin_addr) != 1) {
+      std::cerr << "Invalid IPv4 host: " << host << '\n';
+      close(serverFd);
+      return 2;
+    }
+  }
   addr.sin_port = htons(static_cast<uint16_t>(port));
 
   if (bind(serverFd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) < 0) {
@@ -210,7 +221,7 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  std::cout << "[INFO] Serving " << root << " on http://127.0.0.1:" << port << '\n';
+  std::cout << "[INFO] Serving " << root << " on http://" << host << ":" << port << '\n';
   while (!g_stop) {
     sockaddr_in clientAddr{};
     socklen_t clientLen = sizeof(clientAddr);

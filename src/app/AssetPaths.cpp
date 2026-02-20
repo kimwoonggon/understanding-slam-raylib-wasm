@@ -8,11 +8,16 @@ namespace slam::app {
 std::string ResolveAssetPath(const std::string& relativePath) {
   namespace fs = std::filesystem;
 
-  const std::vector<std::string> candidates = {
-      relativePath,
-      std::string("../") + relativePath,
-      std::string(SLAM_PROJECT_ROOT) + "/" + relativePath,
-  };
+  std::vector<std::string> candidates;
+  candidates.reserve(4);
+#ifdef EMSCRIPTEN
+  if (!relativePath.empty() && relativePath.front() != '/') {
+    candidates.push_back(std::string("/") + relativePath);
+  }
+#endif
+  candidates.push_back(relativePath);
+  candidates.push_back(std::string("../") + relativePath);
+  candidates.push_back(std::string(SLAM_PROJECT_ROOT) + "/" + relativePath);
 
   for (const auto& candidate : candidates) {
     std::error_code ec;

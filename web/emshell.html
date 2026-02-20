@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SLAM WASM</title>
+    <style>
+      :root {
+        --bg: #0b0f12;
+        --fg: #d7e0e8;
+        --accent: #64d28a;
+        --canvas-width: 960px;
+        --canvas-height: 640px;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: radial-gradient(circle at 20% 20%, #12202d, var(--bg));
+        color: var(--fg);
+        font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+        display: grid;
+        place-items: center;
+      }
+      #root {
+        width: min(96vw, 1240px);
+      }
+      #status {
+        margin-bottom: 10px;
+        color: var(--accent);
+        font-size: 12px;
+      }
+      #canvas {
+        width: min(96vw, var(--canvas-width));
+        height: min(72vh, var(--canvas-height));
+        border: 1px solid #1d3a2b;
+        border-radius: 8px;
+        outline: none;
+        display: block;
+        background: #000;
+        image-rendering: pixelated;
+      }
+      #hint {
+        margin-top: 8px;
+        opacity: 0.8;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <main id="root">
+      <!-- Edit this text instead of default "Powered by Emscripten" -->
+      <div id="status">SLAM WASM bootstrap...</div>
+      <canvas id="canvas" tabindex="1" oncontextmenu="event.preventDefault()"></canvas>
+      <div id="hint">Keys: WASD move, M world, G green mode, I reset, P mouse lock/hide</div>
+    </main>
+    <script>
+      const statusEl = document.getElementById("status");
+      const canvas = document.getElementById("canvas");
+
+      // Optional canvas auto-resize. If you want fixed size, set this to false.
+      const AUTO_RESIZE_CANVAS = false;
+
+      function resizeCanvas() {
+        if (!AUTO_RESIZE_CANVAS) return;
+        const ratio = window.devicePixelRatio || 1;
+        const w = Math.floor(window.innerWidth * 0.92);
+        const h = Math.floor(window.innerHeight * 0.78);
+        canvas.style.width = `${w}px`;
+        canvas.style.height = `${h}px`;
+        if (typeof Module !== "undefined" && typeof Module.setCanvasSize === "function") {
+          Module.setCanvasSize(Math.floor(w * ratio), Math.floor(h * ratio), true);
+        }
+      }
+      window.addEventListener("resize", resizeCanvas);
+
+      var Module = window.Module || {};
+      Module.canvas = canvas;
+      Module.preRun = Module.preRun || [];
+      Module.postRun = Module.postRun || [];
+      Module.postRun.push(
+          () => {
+            statusEl.textContent = "SLAM WASM ready";
+            canvas.focus();
+            resizeCanvas();
+          },
+      );
+      Module.setStatus = (text) => {
+        statusEl.textContent = text || "running";
+      };
+      window.Module = Module;
+    </script>
+    {{{ SCRIPT }}}
+  </body>
+</html>

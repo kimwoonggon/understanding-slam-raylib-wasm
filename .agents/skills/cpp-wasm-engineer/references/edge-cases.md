@@ -10,6 +10,7 @@ Use this file as symptom-first triage. Validate one hypothesis at a time.
 | Streaming compile path not used | Wrong MIME type for `.wasm` | Serve with `application/wasm`; verify response headers |
 | Works locally, fails in production CDN | CORS/header mismatch | Validate `Access-Control-*`, COOP/COEP, and cache behavior |
 | App fails only on `file://` | Browser security model | Serve through local HTTP server and retest |
+| Local e2e intermittently fails with `ERR_CONNECTION_REFUSED` | Stale server process or port collision | Pre-clean test port and verify listener before launching browser tests |
 
 ## 2. Symbol and Linking Failures
 
@@ -17,6 +18,7 @@ Use this file as symptom-first triage. Validate one hypothesis at a time.
 |---|---|---|
 | `undefined symbol` at link or runtime | Missing library or stripped symbol | Enable strict undefined-symbol checks; inspect imports/exports with `wasm-objdump -x` |
 | JS cannot call expected C++ function | Export not preserved | Add `EMSCRIPTEN_KEEPALIVE` and include `_<name>` in `EXPORTED_FUNCTIONS` |
+| Runtime abort: `'HEAPF32' was not exported` (or similar runtime method) | Required Emscripten runtime method omitted | Add required entry to `-sEXPORTED_RUNTIME_METHODS=...`; rebuild and recheck browser console |
 | Build succeeds, runtime traps at first call | ABI mismatch at boundary | Ensure `extern "C"` and argument type compatibility with binding layer |
 | Side module load fails | MAIN/SIDE module mismatch | Align module flags and ABI expectations between artifacts |
 
@@ -45,6 +47,7 @@ Use this file as symptom-first triage. Validate one hypothesis at a time.
 | UI freezes during blocking call | Desktop blocking model in browser thread | Move work to worker or Asyncify-required boundaries |
 | Logic breaks after enabling Asyncify | Over-broad async transformation | Restrict Asyncify scope and retest |
 | Frame pacing unstable | Wrong main loop integration | Use browser-managed loop API and cap per-frame workload |
+| Input appears stuck after UI button interactions | Stateful drag/input gate not reset correctly | Prefer per-frame input derivation (`leftDown && !control`) and verify with interaction e2e |
 
 ## 6. Filesystem and Asset Failures
 
@@ -68,6 +71,7 @@ Use this file as symptom-first triage. Validate one hypothesis at a time.
 |---|---|---|
 | Desktop render loop ports poorly to web | Event-loop model mismatch | Refactor to frame callback model and non-blocking I/O |
 | Input/audio timing differs from desktop | Browser policy and scheduling differences | Re-test focus/gesture-triggered APIs and timing assumptions |
+| Mouse/touch e2e reports no movement while app is visible | Test coordinates were sent in viewport space without canvas mapping | Convert internal canvas coordinates through `getBoundingClientRect()` before dispatching pointer/touch events |
 | Unexpected GPU behavior across browsers | Driver/browser variance | Reproduce on multiple engines; reduce undefined GL usage |
 
 ## 9. Release-Only Regressions

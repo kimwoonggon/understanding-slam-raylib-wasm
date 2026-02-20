@@ -44,6 +44,8 @@ Run target-specific smoke tests plus size and symbol checks before closing.
 4. Keep debug and release presets separate; never blend flags ad hoc.
 5. Treat browser headers and hosting config as part of the build contract.
 6. Document every non-default flag with the symptom it solves.
+7. For interactive bug fixes, require executable e2e evidence (keyboard + control-click/tap + drag + audio) before closure.
+8. Record each encountered error with symptom/root-cause/fix/evidence in project error reports.
 
 ## Load References On Demand
 

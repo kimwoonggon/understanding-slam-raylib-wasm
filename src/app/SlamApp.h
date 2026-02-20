@@ -26,6 +26,12 @@ class SlamApp {
   void InitializeAudio();
   void ResetMap();
   void HandleInput();
+  bool IsMouseOnControl(Vector2 mousePos) const;
+  void HandleKeyboardMotion();
+  void HandleMouseDrag(Vector2 mousePos);
+#ifdef EMSCRIPTEN
+  void PublishWebDebugState(bool hasKeyboardIntent, bool draggingNow) const;
+#endif
   void UpdateScan();
   void UpdateAudio();
   void DrawFrame() const;
@@ -39,6 +45,7 @@ class SlamApp {
 
   bool showWorldMap_ = false;
   bool accumulateHits_ = false;
+  bool cursorLocked_ = false;
   bool movedThisFrame_ = false;
   bool collisionThisFrame_ = false;
   std::vector<Vector2> hitHistory_;
@@ -46,6 +53,10 @@ class SlamApp {
   std::vector<render::PixelRay> latestRays_;
 
   bool audioEnabled_ = false;
+  bool audioInitAttempted_ = false;
+  bool mazeAssetPresent_ = false;
+  bool scanAssetPresent_ = false;
+  bool collisionAssetPresent_ = false;
   bool scanSoundReady_ = false;
   bool collisionSoundReady_ = false;
   bool scanPlaying_ = false;
