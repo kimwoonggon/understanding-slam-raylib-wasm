@@ -1,9 +1,17 @@
+/**
+ * @file SoundController.cpp
+ * @brief Audio controller policy implementation for scan/collision sounds.
+ */
+
 #include "audio/SoundController.h"
 
 #include <utility>
 
 namespace slam::audio {
 
+/**
+ * @brief Construct a sound controller.
+ */
 SoundController::SoundController(
     SoundLike* scanSound,
     SoundLike* collisionSound,
@@ -16,6 +24,10 @@ SoundController::SoundController(
       timeFn_(std::move(timeFn)),
       collisionCooldownSec_(collisionCooldownSec) {}
 
+/**
+ * @brief Start/stop scan loop sound based on activity.
+ * @param active True when movement/scan activity is present.
+ */
 void SoundController::UpdateScan(bool active) {
   if (!enabled_ || scanSound_ == nullptr) {
     return;
@@ -30,6 +42,9 @@ void SoundController::UpdateScan(bool active) {
   }
 }
 
+/**
+ * @brief Play collision sound if cooldown allows.
+ */
 void SoundController::PlayCollision() {
   if (!enabled_ || collisionSound_ == nullptr) {
     return;
@@ -44,6 +59,9 @@ void SoundController::PlayCollision() {
   lastCollisionTime_ = now;
 }
 
+/**
+ * @brief Stop ongoing scan sound and clear runtime state.
+ */
 void SoundController::Shutdown() {
   if (scanSound_ != nullptr) {
     scanSound_->Stop();

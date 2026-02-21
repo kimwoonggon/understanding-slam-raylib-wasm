@@ -2,12 +2,15 @@ cmake_minimum_required(VERSION 3.20)
 
 project(understanding_slam_raylib_wasm LANGUAGES CXX)
 
+# Global C++ toolchain defaults.
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Expose project root for runtime asset lookup fallbacks.
 add_compile_definitions(SLAM_PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
 
+# Main application sources shared by native/WASM builds.
 set(SLAM_SOURCES
   src/main.cpp
   src/app/AssetPaths.cpp
@@ -28,6 +31,7 @@ add_executable(slam-raylib ${SLAM_SOURCES})
 target_include_directories(slam-raylib PRIVATE src)
 target_compile_options(slam-raylib PRIVATE -Wall -Wextra -Wpedantic)
 
+# Prefer CMake package raylib; fall back to common local install paths.
 find_package(raylib QUIET)
 
 if(TARGET raylib)
@@ -60,6 +64,7 @@ endif()
 
 target_link_libraries(slam-raylib PRIVATE ${SLAM_RAYLIB_TARGET})
 
+# Emscripten-only linker contract for browser target.
 if(EMSCRIPTEN)
   set_target_properties(slam-raylib PROPERTIES SUFFIX ".html")
   target_link_options(slam-raylib PRIVATE
@@ -77,6 +82,7 @@ endif()
 
 option(SLAM_BUILD_TESTS "Build SLAM core tests" ON)
 
+# Test/tool targets are built only when test option is enabled.
 if(SLAM_BUILD_TESTS)
   enable_testing()
 
@@ -153,6 +159,7 @@ if(SLAM_BUILD_TESTS)
   add_test(NAME slam-config-tests COMMAND slam-config-tests)
 
   if(NOT EMSCRIPTEN)
+    # Native-only helper tools and headless e2e smoke execution.
     add_executable(slam-static-server
       src/tools/StaticFileServer.cpp
     )

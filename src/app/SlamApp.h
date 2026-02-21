@@ -12,28 +12,79 @@
 #include "render/Renderer.h"
 #include "ui/UiControls.h"
 
+/**
+ * @file SlamApp.h
+ * @brief Interactive raylib SLAM application orchestration.
+ */
+
 namespace slam::app {
 
+/**
+ * @brief Owns application lifecycle, input handling, scan updates, and rendering.
+ */
 class SlamApp {
  public:
+  /**
+   * @brief Construct the app with runtime configuration.
+   */
   explicit SlamApp(const AppConfig& config);
+  /**
+   * @brief Release runtime resources.
+   */
   ~SlamApp();
 
- int Run();
+  /**
+   * @brief Execute the interactive frame loop.
+   * @return Process-style exit code.
+   */
+  int Run();
 
  private:
+  /**
+   * @brief Load world geometry from image or fallback demo layout.
+   */
   void InitializeWorld();
+  /**
+   * @brief Initialize audio device and load sound assets.
+   */
   void InitializeAudio();
+  /**
+   * @brief Clear reconstructed map and hit history.
+   */
   void ResetMap();
+  /**
+   * @brief Poll and apply one frame of input.
+   */
   void HandleInput();
+  /**
+   * @brief Return whether mouse position overlaps a UI control.
+   */
   bool IsMouseOnControl(Vector2 mousePos) const;
+  /**
+   * @brief Apply keyboard motion and collision handling.
+   */
   void HandleKeyboardMotion();
+  /**
+   * @brief Apply drag-based motion and collision handling.
+   */
   void HandleMouseDrag(Vector2 mousePos);
 #ifdef EMSCRIPTEN
+  /**
+   * @brief Publish runtime debug state to JS for browser e2e checks.
+   */
   void PublishWebDebugState(bool hasKeyboardIntent, bool draggingNow) const;
 #endif
+  /**
+   * @brief Perform one lidar scan and map integration step.
+   */
   void UpdateScan();
+  /**
+   * @brief Update audio playback state for this frame.
+   */
   void UpdateAudio();
+  /**
+   * @brief Render one frame.
+   */
   void DrawFrame() const;
 
   AppConfig config_;

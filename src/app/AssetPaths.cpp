@@ -1,3 +1,8 @@
+/**
+ * @file AssetPaths.cpp
+ * @brief Asset path resolution implementation across native and WASM layouts.
+ */
+
 #include "app/AssetPaths.h"
 
 #include <filesystem>
@@ -5,6 +10,11 @@
 
 namespace slam::app {
 
+/**
+ * @brief Resolve an asset path across known runtime locations.
+ * @param relativePath Project-relative asset path.
+ * @return First existing candidate path, else the original input.
+ */
 std::string ResolveAssetPath(const std::string& relativePath) {
   namespace fs = std::filesystem;
 

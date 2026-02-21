@@ -1,3 +1,8 @@
+/**
+ * @file OccupancyGridMap.cpp
+ * @brief Occupancy integration and Bresenham-based ray updates.
+ */
+
 #include "core/OccupancyGridMap.h"
 
 #include <cmath>
@@ -6,6 +11,12 @@
 namespace slam::core {
 namespace {
 
+/**
+ * @brief Compute integer line points using Bresenham algorithm.
+ * @param start Start coordinate.
+ * @param end End coordinate.
+ * @return Ordered list of grid points on the line.
+ */
 std::vector<std::pair<int, int>> Bresenham(std::pair<int, int> start, std::pair<int, int> end) {
   int x0 = start.first;
   int y0 = start.second;
@@ -39,6 +50,11 @@ std::vector<std::pair<int, int>> Bresenham(std::pair<int, int> start, std::pair<
 
 }  // namespace
 
+/**
+ * @brief Construct an occupancy map initialized to unknown.
+ * @param width Map width in cells.
+ * @param height Map height in cells.
+ */
 OccupancyGridMap::OccupancyGridMap(int width, int height)
     : width_(width),
       height_(height),
@@ -48,14 +64,28 @@ OccupancyGridMap::OccupancyGridMap(int width, int height)
   }
 }
 
+/**
+ * @brief Reset all cells to unknown state.
+ */
 void OccupancyGridMap::Reset() {
   std::fill(grid_.begin(), grid_.end(), kUnknown);
 }
 
+/**
+ * @brief Read map value at a coordinate.
+ * @param x X coordinate.
+ * @param y Y coordinate.
+ * @return Occupancy state value.
+ */
 std::int16_t OccupancyGridMap::ValueAt(int x, int y) const {
   return grid_[static_cast<std::size_t>(Index(x, y))];
 }
 
+/**
+ * @brief Integrate one lidar scan into the occupancy map.
+ * @param pose Robot pose.
+ * @param scan Scan samples to fuse.
+ */
 void OccupancyGridMap::IntegrateScan(const RobotPose& pose, const std::vector<ScanSample>& scan) {
   const std::pair<int, int> start{static_cast<int>(pose.x), static_cast<int>(pose.y)};
 
@@ -79,10 +109,16 @@ void OccupancyGridMap::IntegrateScan(const RobotPose& pose, const std::vector<Sc
   }
 }
 
+/**
+ * @brief Check whether a coordinate lies inside map bounds.
+ */
 bool OccupancyGridMap::InBounds(int x, int y) const {
   return x >= 0 && x < width_ && y >= 0 && y < height_;
 }
 
+/**
+ * @brief Convert a 2D coordinate to row-major index.
+ */
 int OccupancyGridMap::Index(int x, int y) const {
   return y * width_ + x;
 }

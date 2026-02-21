@@ -1,3 +1,8 @@
+/**
+ * @file Motion.cpp
+ * @brief Motion update helpers for keyboard and drag interactions.
+ */
+
 #include "input/Motion.h"
 
 #include <algorithm>
@@ -5,6 +10,16 @@
 
 namespace slam::input {
 
+/**
+ * @brief Compute next pose from directional intent.
+ * @param pose Current pose.
+ * @param speed Movement speed per frame.
+ * @param upPressed Up intent.
+ * @param downPressed Down intent.
+ * @param leftPressed Left intent.
+ * @param rightPressed Right intent.
+ * @return Updated pose.
+ */
 core::RobotPose HandleMotion(
     const core::RobotPose& pose,
     double speed,
@@ -39,6 +54,14 @@ core::RobotPose HandleMotion(
   };
 }
 
+/**
+ * @brief Move pose toward drag target while clipping at obstacles.
+ * @param pose Current pose.
+ * @param targetX Target grid X.
+ * @param targetY Target grid Y.
+ * @param world Ground-truth world.
+ * @return Updated pose constrained by obstacles.
+ */
 core::RobotPose ApplyMouseDragToPose(
     const core::RobotPose& pose, int targetX, int targetY, const core::WorldGrid& world) {
   const int startX = static_cast<int>(pose.x);

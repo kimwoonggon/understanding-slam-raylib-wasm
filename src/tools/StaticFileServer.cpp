@@ -1,3 +1,8 @@
+/**
+ * @file StaticFileServer.cpp
+ * @brief Minimal static HTTP server for local WASM artifact hosting.
+ */
+
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -19,10 +24,16 @@ namespace {
 
 volatile std::sig_atomic_t g_stop = 0;
 
+/**
+ * @brief Signal handler used to stop the server loop.
+ */
 void HandleSignal(int) {
   g_stop = 1;
 }
 
+/**
+ * @brief Decode URL-escaped request paths.
+ */
 std::string UrlDecode(const std::string& input) {
   std::string out;
   out.reserve(input.size());
@@ -46,6 +57,9 @@ std::string UrlDecode(const std::string& input) {
   return out;
 }
 
+/**
+ * @brief Resolve HTTP content type from file extension.
+ */
 std::string ContentTypeFor(const std::filesystem::path& path) {
   static const std::map<std::string, std::string> kTypes = {
       {".html", "text/html; charset=utf-8"},
@@ -68,10 +82,16 @@ std::string ContentTypeFor(const std::filesystem::path& path) {
   return "application/octet-stream";
 }
 
+/**
+ * @brief Return true when @p s starts with @p prefix.
+ */
 bool StartsWith(const std::string& s, const std::string& prefix) {
   return s.size() >= prefix.size() && s.compare(0, prefix.size(), prefix) == 0;
 }
 
+/**
+ * @brief Send all bytes in a string to a client socket.
+ */
 void SendAll(int clientFd, const std::string& data) {
   std::size_t sent = 0;
   while (sent < data.size()) {
@@ -83,6 +103,9 @@ void SendAll(int clientFd, const std::string& data) {
   }
 }
 
+/**
+ * @brief Send HTTP response headers and file body.
+ */
 void SendFileResponse(int clientFd, int status, const std::string& statusText, const std::string& contentType,
                       const std::vector<char>& body) {
   std::ostringstream header;
@@ -104,6 +127,9 @@ void SendFileResponse(int clientFd, int status, const std::string& statusText, c
   }
 }
 
+/**
+ * @brief Load a file into memory.
+ */
 std::vector<char> ReadFile(const std::filesystem::path& path) {
   std::ifstream in(path, std::ios::binary);
   if (!in) {
@@ -112,6 +138,9 @@ std::vector<char> ReadFile(const std::filesystem::path& path) {
   return std::vector<char>(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
 }
 
+/**
+ * @brief Resolve and sanitize a request target against server root.
+ */
 std::filesystem::path ResolvePath(const std::filesystem::path& root, std::string requestTarget) {
   if (requestTarget.empty() || requestTarget == "/") {
     requestTarget = "/slam-raylib.html";
@@ -145,6 +174,9 @@ std::filesystem::path ResolvePath(const std::filesystem::path& root, std::string
   return fullCanonical;
 }
 
+/**
+ * @brief Parse and validate a TCP port argument.
+ */
 int ParsePort(const std::string& value) {
   char* end = nullptr;
   const long port = std::strtol(value.c_str(), &end, 10);
@@ -156,6 +188,10 @@ int ParsePort(const std::string& value) {
 
 }  // namespace
 
+/**
+ * @brief Static-file HTTP server entrypoint.
+ * @return Process exit code.
+ */
 int main(int argc, char** argv) {
   std::filesystem::path root = std::filesystem::current_path();
   int port = 8090;

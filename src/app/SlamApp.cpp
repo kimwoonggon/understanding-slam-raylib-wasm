@@ -1,3 +1,8 @@
+/**
+ * @file SlamApp.cpp
+ * @brief Interactive app lifecycle, input, rendering, and audio integration.
+ */
+
 #include "app/SlamApp.h"
 
 #include <cmath>
@@ -16,6 +21,9 @@
 namespace slam::app {
 namespace {
 
+/**
+ * @brief Draw a labeled rectangular UI button.
+ */
 void DrawButton(const Rectangle& buttonRect, const char* labelText, Color bgColor, Color textColor) {
   DrawRectangleRec(buttonRect, bgColor);
   DrawRectangleLinesEx(buttonRect, 1.0F, textColor);
@@ -23,6 +31,9 @@ void DrawButton(const Rectangle& buttonRect, const char* labelText, Color bgColo
 }
 
 #ifdef EMSCRIPTEN
+/**
+ * @brief Ensure the WASM canvas remains keyboard-focusable.
+ */
 void EnsureWebCanvasFocusable() {
   EM_ASM({
     if (typeof Module !== 'undefined' && Module['canvas']) {
@@ -45,6 +56,10 @@ void EnsureWebCanvasFocusable() {
 
 }  // namespace
 
+/**
+ * @brief Construct and initialize runtime systems.
+ * @param config Application configuration.
+ */
 SlamApp::SlamApp(const AppConfig& config)
     : config_(config),
       world_(core::WorldGrid::WithBorderWalls(config.world.width, config.world.height)),
@@ -73,6 +88,9 @@ SlamApp::SlamApp(const AppConfig& config)
 #endif
 }
 
+/**
+ * @brief Release graphics/audio resources.
+ */
 SlamApp::~SlamApp() {
   if (scanSoundReady_) {
     StopSound(scanSound_);
@@ -89,6 +107,10 @@ SlamApp::~SlamApp() {
   }
 }
 
+/**
+ * @brief Run the interactive app loop.
+ * @return Process-style exit code.
+ */
 int SlamApp::Run() {
   while (!WindowShouldClose()) {
     HandleInput();
@@ -99,6 +121,9 @@ int SlamApp::Run() {
   return 0;
 }
 
+/**
+ * @brief Load world geometry from configured image or fallback map.
+ */
 void SlamApp::InitializeWorld() {
   const std::string mazePath = ResolveAssetPath("assets/maze.png");
   mazeAssetPresent_ = FileExists(mazePath.c_str());
@@ -109,6 +134,9 @@ void SlamApp::InitializeWorld() {
   world_ = world::BuildDemoWorld(config_.world.width, config_.world.height);
 }
 
+/**
+ * @brief Initialize audio device and load sound effects.
+ */
 void SlamApp::InitializeAudio() {
   if (!IsAudioDeviceReady()) {
     InitAudioDevice();
@@ -134,11 +162,17 @@ void SlamApp::InitializeAudio() {
   audioEnabled_ = scanSoundReady_ || collisionSoundReady_;
 }
 
+/**
+ * @brief Reset reconstructed map state.
+ */
 void SlamApp::ResetMap() {
   slamMap_.Reset();
   hitHistory_.clear();
 }
 
+/**
+ * @brief Process one frame of user input.
+ */
 void SlamApp::HandleInput() {
   movedThisFrame_ = false;
   collisionThisFrame_ = false;
@@ -221,12 +255,18 @@ void SlamApp::HandleInput() {
 #endif
 }
 
+/**
+ * @brief Return whether mouse position overlaps a control button.
+ */
 bool SlamApp::IsMouseOnControl(Vector2 mousePos) const {
   return CheckCollisionPointRec(mousePos, controls_.reset) ||
          CheckCollisionPointRec(mousePos, controls_.toggleWorld) ||
          CheckCollisionPointRec(mousePos, controls_.accumulate);
 }
 
+/**
+ * @brief Apply keyboard-driven motion with collision handling.
+ */
 void SlamApp::HandleKeyboardMotion() {
   const core::RobotPose motionCandidate = input::HandleMotion(
       pose_,
@@ -246,6 +286,9 @@ void SlamApp::HandleKeyboardMotion() {
   }
 }
 
+/**
+ * @brief Apply drag-driven motion with collision handling.
+ */
 void SlamApp::HandleMouseDrag(Vector2 mousePos) {
   const core::RobotPose oldPose = pose_;
   const int targetX = static_cast<int>(mousePos.x) / config_.screen.worldCellSize;
@@ -259,6 +302,9 @@ void SlamApp::HandleMouseDrag(Vector2 mousePos) {
 }
 
 #ifdef EMSCRIPTEN
+/**
+ * @brief Publish runtime debug state for browser automation and diagnostics.
+ */
 void SlamApp::PublishWebDebugState(bool hasKeyboardIntent, bool draggingNow) const {
   const int poseXMilli = static_cast<int>(std::lround(pose_.x * 1000.0));
   const int poseYMilli = static_cast<int>(std::lround(pose_.y * 1000.0));
@@ -289,6 +335,9 @@ void SlamApp::PublishWebDebugState(bool hasKeyboardIntent, bool draggingNow) con
 }
 #endif
 
+/**
+ * @brief Perform one lidar scan and map integration update.
+ */
 void SlamApp::UpdateScan() {
   latestScan_ = lidar_.Scan(world_, pose_);
   slamMap_.IntegrateScan(pose_, latestScan_);
@@ -304,6 +353,9 @@ void SlamApp::UpdateScan() {
   hitHistory_ = render::UpdateHitPointHistory(hitHistory_, currentHits, accumulateHits_);
 }
 
+/**
+ * @brief Render world/map, rays, hits, robot, and controls.
+ */
 void SlamApp::DrawFrame() const {
   BeginDrawing();
   ClearBackground(render::Palette::kBackground);
@@ -333,10 +385,14 @@ void SlamApp::DrawFrame() const {
   DrawButton(controls_.reset, "RESET (I)", Color{40, 40, 40, 255}, render::Palette::kText);
   DrawButton(controls_.toggleWorld, worldText.c_str(), Color{40, 40, 40, 255}, render::Palette::kText);
   DrawButton(controls_.accumulate, hitText.c_str(), Color{40, 40, 40, 255}, render::Palette::kText);
+  DrawText(TextFormat("FPS: %i", GetFPS()), 10, 10, 20, GREEN);
 
   EndDrawing();
 }
 
+/**
+ * @brief Update scan/collision audio playback for current frame state.
+ */
 void SlamApp::UpdateAudio() {
   if (!audioEnabled_) {
     return;

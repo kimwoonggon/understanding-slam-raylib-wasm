@@ -1,9 +1,17 @@
+/**
+ * @file UiControls.cpp
+ * @brief UI button geometry and input predicate implementations.
+ */
+
 #include "ui/UiControls.h"
 
 #include <algorithm>
 
 namespace slam::ui {
 
+/**
+ * @brief Create reset-button rectangle for split-panel layouts.
+ */
 Rectangle CreateResetButtonRect(int panelWidth, int windowHeight) {
   constexpr float kButtonWidth = 160.0F;
   constexpr float kButtonHeight = 36.0F;
@@ -13,6 +21,9 @@ Rectangle CreateResetButtonRect(int panelWidth, int windowHeight) {
   return Rectangle{left, top, kButtonWidth, kButtonHeight};
 }
 
+/**
+ * @brief Create world-toggle button rectangle for split-panel layouts.
+ */
 Rectangle CreateToggleWorldButtonRect(int panelWidth, int windowHeight) {
   constexpr float kButtonWidth = 160.0F;
   constexpr float kButtonHeight = 36.0F;
@@ -24,6 +35,9 @@ Rectangle CreateToggleWorldButtonRect(int panelWidth, int windowHeight) {
   return Rectangle{left, top, kButtonWidth, kButtonHeight};
 }
 
+/**
+ * @brief Create accumulate-toggle button rectangle for split-panel layouts.
+ */
 Rectangle CreateAccumulateButtonRect(int panelWidth, int windowHeight) {
   constexpr float kButtonWidth = 160.0F;
   constexpr float kButtonHeight = 36.0F;
@@ -35,6 +49,9 @@ Rectangle CreateAccumulateButtonRect(int panelWidth, int windowHeight) {
   return Rectangle{left, top, kButtonWidth, kButtonHeight};
 }
 
+/**
+ * @brief Create all UI control rectangles for split-panel layout.
+ */
 UiControls CreateUiControls(int panelWidth, int windowHeight) {
   return UiControls{
       .reset = CreateResetButtonRect(panelWidth, windowHeight),
@@ -43,6 +60,9 @@ UiControls CreateUiControls(int panelWidth, int windowHeight) {
   };
 }
 
+/**
+ * @brief Create all UI control rectangles for single-window layout.
+ */
 UiControls CreateUiControlsForWindow(int windowWidth, int windowHeight) {
   constexpr float kButtonWidth = 160.0F;
   constexpr float kButtonHeight = 36.0F;
@@ -58,10 +78,16 @@ UiControls CreateUiControlsForWindow(int windowWidth, int windowHeight) {
   };
 }
 
+/**
+ * @brief Return whether mouse position hits reset button.
+ */
 bool IsResetButtonClick(Vector2 mousePos, const Rectangle& buttonRect) {
   return CheckCollisionPointRec(mousePos, buttonRect);
 }
 
+/**
+ * @brief Evaluate whether reset should be triggered from input state.
+ */
 bool ShouldResetFromInputs(
     bool iPressed, bool leftClickPressed, Vector2 mousePos, const Rectangle& resetRect) {
   if (iPressed) {

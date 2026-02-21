@@ -1,3 +1,8 @@
+/**
+ * @file WorldGrid.cpp
+ * @brief World obstacle-grid implementation.
+ */
+
 #include "core/WorldGrid.h"
 
 #include <algorithm>
@@ -5,6 +10,11 @@
 
 namespace slam::core {
 
+/**
+ * @brief Construct an empty obstacle grid.
+ * @param width Grid width in cells.
+ * @param height Grid height in cells.
+ */
 WorldGrid::WorldGrid(int width, int height)
     : width_(width),
       height_(height),
@@ -14,6 +24,12 @@ WorldGrid::WorldGrid(int width, int height)
   }
 }
 
+/**
+ * @brief Build a world with border walls.
+ * @param width Grid width in cells.
+ * @param height Grid height in cells.
+ * @return World with outer border set as obstacles.
+ */
 WorldGrid WorldGrid::WithBorderWalls(int width, int height) {
   WorldGrid world(width, height);
   for (int x = 0; x < width; ++x) {
@@ -27,10 +43,16 @@ WorldGrid WorldGrid::WithBorderWalls(int width, int height) {
   return world;
 }
 
+/**
+ * @brief Check whether a coordinate is inside grid bounds.
+ */
 bool WorldGrid::InBounds(int x, int y) const {
   return x >= 0 && x < width_ && y >= 0 && y < height_;
 }
 
+/**
+ * @brief Mark a single cell as obstacle.
+ */
 void WorldGrid::SetObstacle(int x, int y) {
   if (!InBounds(x, y)) {
     return;
@@ -38,6 +60,9 @@ void WorldGrid::SetObstacle(int x, int y) {
   obstacles_[static_cast<std::size_t>(Index(x, y))] = 1U;
 }
 
+/**
+ * @brief Fill a rectangular area with obstacle cells.
+ */
 void WorldGrid::AddRectangle(int x, int y, int width, int height) {
   const int xStart = std::max(0, x);
   const int yStart = std::max(0, y);
@@ -51,6 +76,10 @@ void WorldGrid::AddRectangle(int x, int y, int width, int height) {
   }
 }
 
+/**
+ * @brief Return whether a cell is blocked.
+ * @note Out-of-bounds coordinates are treated as obstacles.
+ */
 bool WorldGrid::IsObstacle(int x, int y) const {
   if (!InBounds(x, y)) {
     return true;
@@ -58,6 +87,9 @@ bool WorldGrid::IsObstacle(int x, int y) const {
   return obstacles_[static_cast<std::size_t>(Index(x, y))] != 0U;
 }
 
+/**
+ * @brief Convert a 2D coordinate to row-major index.
+ */
 int WorldGrid::Index(int x, int y) const {
   return y * width_ + x;
 }

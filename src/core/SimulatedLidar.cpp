@@ -1,3 +1,8 @@
+/**
+ * @file SimulatedLidar.cpp
+ * @brief Ray-march lidar simulation implementation.
+ */
+
 #include "core/SimulatedLidar.h"
 
 #include <cmath>
@@ -5,6 +10,9 @@
 
 namespace slam::core {
 
+/**
+ * @brief Construct a lidar model with fixed scan parameters.
+ */
 SimulatedLidar::SimulatedLidar(double maxRange, int beamCount, double stepSize)
     : maxRange_(maxRange), beamCount_(beamCount), stepSize_(stepSize) {
   if (maxRange <= 0.0 || beamCount <= 0 || stepSize <= 0.0) {
@@ -12,6 +20,12 @@ SimulatedLidar::SimulatedLidar(double maxRange, int beamCount, double stepSize)
   }
 }
 
+/**
+ * @brief Execute a full 360-degree scan.
+ * @param world Ground-truth world grid.
+ * @param pose Robot pose.
+ * @return Beam samples containing distance and hit state.
+ */
 std::vector<ScanSample> SimulatedLidar::Scan(const WorldGrid& world, const RobotPose& pose) const {
   std::vector<ScanSample> samples;
   samples.reserve(static_cast<std::size_t>(beamCount_));
@@ -30,6 +44,13 @@ std::vector<ScanSample> SimulatedLidar::Scan(const WorldGrid& world, const Robot
   return samples;
 }
 
+/**
+ * @brief Cast one beam by ray-marching through the world.
+ * @param world Ground-truth world grid.
+ * @param pose Robot pose.
+ * @param angle Absolute beam angle in radians.
+ * @return Pair of measured distance and hit flag.
+ */
 std::pair<double, bool> SimulatedLidar::CastBeam(
     const WorldGrid& world, const RobotPose& pose, double angle) const {
   double distance = stepSize_;

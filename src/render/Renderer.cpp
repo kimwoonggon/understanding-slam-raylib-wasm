@@ -1,3 +1,8 @@
+/**
+ * @file Renderer.cpp
+ * @brief World/map/lidar drawing and hit-history rendering helpers.
+ */
+
 #include "render/Renderer.h"
 
 #include <algorithm>
@@ -5,6 +10,9 @@
 
 namespace slam::render {
 
+/**
+ * @brief Draw ground-truth world obstacles.
+ */
 void DrawWorld(const core::WorldGrid& world, int cellSize, int offsetX) {
   const auto& obstacles = world.ObstacleData();
   for (int y = 0; y < world.Height(); ++y) {
@@ -18,6 +26,9 @@ void DrawWorld(const core::WorldGrid& world, int cellSize, int offsetX) {
   }
 }
 
+/**
+ * @brief Draw reconstructed occupancy map.
+ */
 void DrawMap(const core::OccupancyGridMap& map, int cellSize, int offsetX) {
   for (int y = 0; y < map.Height(); ++y) {
     for (int x = 0; x < map.Width(); ++x) {
@@ -28,6 +39,9 @@ void DrawMap(const core::OccupancyGridMap& map, int cellSize, int offsetX) {
   }
 }
 
+/**
+ * @brief Convert scan samples to pixel-space ray endpoints.
+ */
 std::vector<PixelRay> ScanSamplesToPixels(
     const core::RobotPose& pose,
     const std::vector<core::ScanSample>& scan,
@@ -53,6 +67,9 @@ std::vector<PixelRay> ScanSamplesToPixels(
   return output;
 }
 
+/**
+ * @brief Update hit-point history for live/accumulate modes.
+ */
 std::vector<Vector2> UpdateHitPointHistory(
     const std::vector<Vector2>& history,
     const std::vector<Vector2>& currentHits,

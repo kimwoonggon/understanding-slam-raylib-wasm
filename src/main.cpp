@@ -1,9 +1,18 @@
+/**
+ * @file main.cpp
+ * @brief Application entrypoint selecting interactive or headless execution.
+ */
+
 #include "app/Config.h"
 #include "app/HeadlessSmoke.h"
 #include "app/SlamApp.h"
 
 #include <cstdlib>
 
+/**
+ * @brief Program entrypoint.
+ * @return Process exit code.
+ */
 int main() {
   const slam::app::AppConfig config = slam::app::AppConfig::Default();
 
