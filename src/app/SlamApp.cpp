@@ -385,6 +385,7 @@ void SlamApp::DrawFrame() const {
   DrawButton(controls_.reset, "RESET (I)", Color{40, 40, 40, 255}, render::Palette::kText);
   DrawButton(controls_.toggleWorld, worldText.c_str(), Color{40, 40, 40, 255}, render::Palette::kText);
   DrawButton(controls_.accumulate, hitText.c_str(), Color{40, 40, 40, 255}, render::Palette::kText);
+  DrawText(TextFormat("FPS: %i", GetFPS()), 10, 10, 20, GREEN);
 
   EndDrawing();
 }
