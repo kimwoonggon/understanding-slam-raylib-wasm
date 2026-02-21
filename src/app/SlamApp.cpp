@@ -5,6 +5,7 @@
 
 #include "app/SlamApp.h"
 
+#include <algorithm>
 #include <cmath>
 #include <string>
 
@@ -62,19 +63,27 @@ void EnsureWebCanvasFocusable() {
  */
 SlamApp::SlamApp(const AppConfig& config)
     : config_(config),
+      windowWidth_(config.world.width * config.screen.worldCellSize),
+      windowHeight_(config.world.height * config.screen.worldCellSize),
       world_(core::WorldGrid::WithBorderWalls(config.world.width, config.world.height)),
       slamMap_(config.world.width, config.world.height),
       lidar_(config.lidar.maxRange, config.lidar.beamCount, config.lidar.stepSize),
       pose_({10.0, 10.0, 0.0}),
       showWorldMap_(config.world.showWorldByDefault) {
-  const int windowWidth = config_.world.width * config_.screen.worldCellSize;
-  const int windowHeight = config_.world.height * config_.screen.worldCellSize;
-  InitWindow(windowWidth, windowHeight, "SLAM Understanding (Raylib C++)");
+  InitWindow(windowWidth_, windowHeight_, "SLAM Understanding (Raylib C++)");
   SetTargetFPS(config_.screen.fps);
 #ifdef EMSCRIPTEN
   EnsureWebCanvasFocusable();
 #endif
-  controls_ = ui::CreateUiControlsForWindow(windowWidth, windowHeight);
+  controls_ = ui::CreateUiControlsForWindow(windowWidth_, windowHeight_);
+  hitPixelOccupancy_.assign(static_cast<std::size_t>(windowWidth_ * windowHeight_), 0U);
+  hitLayer_ = LoadRenderTexture(windowWidth_, windowHeight_);
+  hitLayerReady_ = (hitLayer_.id != 0U);
+  if (hitLayerReady_) {
+    BeginTextureMode(hitLayer_);
+    ClearBackground(BLANK);
+    EndTextureMode();
+  }
   InitializeWorld();
   const std::string scanPath = ResolveAssetPath("assets/sounds/scan_loop.wav");
   const std::string collisionPath = ResolveAssetPath("assets/sounds/collision_beep.wav");
@@ -101,6 +110,10 @@ SlamApp::~SlamApp() {
   }
   if (IsAudioDeviceReady()) {
     CloseAudioDevice();
+  }
+  if (hitLayerReady_) {
+    UnloadRenderTexture(hitLayer_);
+    hitLayerReady_ = false;
   }
   if (IsWindowReady()) {
     CloseWindow();
@@ -167,7 +180,8 @@ void SlamApp::InitializeAudio() {
  */
 void SlamApp::ResetMap() {
   slamMap_.Reset();
-  hitHistory_.clear();
+  ResetAccumulatedHitCache();
+  wasAccumulating_ = false;
 }
 
 /**
@@ -308,6 +322,8 @@ void SlamApp::HandleMouseDrag(Vector2 mousePos) {
 void SlamApp::PublishWebDebugState(bool hasKeyboardIntent, bool draggingNow) const {
   const int poseXMilli = static_cast<int>(std::lround(pose_.x * 1000.0));
   const int poseYMilli = static_cast<int>(std::lround(pose_.y * 1000.0));
+  const int fps = GetFPS();
+  const int hitHistorySize = static_cast<int>(hitHistory_.size());
   EM_ASM({
     if (typeof window === 'undefined') return;
     if (!window.__slamDebug) window.__slamDebug = {};
@@ -321,6 +337,9 @@ void SlamApp::PublishWebDebugState(bool hasKeyboardIntent, bool draggingNow) con
     window.__slamDebug.collisionAssetPresent = !!$7;
     window.__slamDebug.scanSoundReady = !!$8;
     window.__slamDebug.collisionSoundReady = !!$9;
+    window.__slamDebug.fps = $10;
+    window.__slamDebug.hitHistorySize = $11;
+    window.__slamDebug.accumulateHits = !!$12;
   },
          poseXMilli,
          poseYMilli,
@@ -331,7 +350,10 @@ void SlamApp::PublishWebDebugState(bool hasKeyboardIntent, bool draggingNow) con
          scanAssetPresent_ ? 1 : 0,
          collisionAssetPresent_ ? 1 : 0,
          scanSoundReady_ ? 1 : 0,
-         collisionSoundReady_ ? 1 : 0);
+         collisionSoundReady_ ? 1 : 0,
+         fps,
+         hitHistorySize,
+         accumulateHits_ ? 1 : 0);
 }
 #endif
 
@@ -350,7 +372,59 @@ void SlamApp::UpdateScan() {
       currentHits.push_back(ray.end);
     }
   }
-  hitHistory_ = render::UpdateHitPointHistory(hitHistory_, currentHits, accumulateHits_);
+
+  if (!accumulateHits_) {
+    if (wasAccumulating_) {
+      ResetAccumulatedHitCache();
+      wasAccumulating_ = false;
+    }
+    hitHistory_ = std::move(currentHits);
+    return;
+  }
+
+  pendingAccumulatedDrawHits_.clear();
+  if (!wasAccumulating_) {
+    const std::vector<Vector2> seedHits = hitHistory_;
+    ResetAccumulatedHitCache();
+    for (const Vector2& point : seedHits) {
+      if (render::TryMarkHitPixel(hitPixelOccupancy_, windowWidth_, windowHeight_, point)) {
+        hitHistory_.push_back(point);
+        pendingAccumulatedDrawHits_.push_back(point);
+      }
+    }
+    wasAccumulating_ = true;
+  }
+
+  for (const Vector2& point : currentHits) {
+    if (render::TryMarkHitPixel(hitPixelOccupancy_, windowWidth_, windowHeight_, point)) {
+      hitHistory_.push_back(point);
+      pendingAccumulatedDrawHits_.push_back(point);
+    }
+  }
+  FlushAccumulatedHitDraws();
+}
+
+void SlamApp::ResetAccumulatedHitCache() {
+  hitHistory_.clear();
+  pendingAccumulatedDrawHits_.clear();
+  std::fill(hitPixelOccupancy_.begin(), hitPixelOccupancy_.end(), 0U);
+  if (hitLayerReady_) {
+    BeginTextureMode(hitLayer_);
+    ClearBackground(BLANK);
+    EndTextureMode();
+  }
+}
+
+void SlamApp::FlushAccumulatedHitDraws() {
+  if (!hitLayerReady_ || pendingAccumulatedDrawHits_.empty()) {
+    return;
+  }
+  BeginTextureMode(hitLayer_);
+  for (const Vector2& point : pendingAccumulatedDrawHits_) {
+    DrawCircleV(point, 2.0F, render::Palette::kHit);
+  }
+  EndTextureMode();
+  pendingAccumulatedDrawHits_.clear();
 }
 
 /**
@@ -369,8 +443,16 @@ void SlamApp::DrawFrame() const {
   for (const render::PixelRay& ray : latestRays_) {
     DrawLineV(ray.start, ray.end, render::Palette::kLaser);
   }
-  for (const Vector2& hit : hitHistory_) {
-    DrawCircleV(hit, 2.0F, render::Palette::kHit);
+  if (accumulateHits_ && hitLayerReady_) {
+    DrawTextureRec(
+        hitLayer_.texture,
+        Rectangle{0.0F, 0.0F, static_cast<float>(hitLayer_.texture.width), -static_cast<float>(hitLayer_.texture.height)},
+        Vector2{0.0F, 0.0F},
+        WHITE);
+  } else {
+    for (const Vector2& hit : hitHistory_) {
+      DrawCircleV(hit, 2.0F, render::Palette::kHit);
+    }
   }
 
   DrawRectangle(
