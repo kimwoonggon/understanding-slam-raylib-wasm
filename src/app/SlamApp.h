@@ -79,6 +79,14 @@ class SlamApp {
    */
   void UpdateScan();
   /**
+   * @brief Reset accumulated-hit caches and texture layer.
+   */
+  void ResetAccumulatedHitCache();
+  /**
+   * @brief Flush newly discovered accumulated hits into the hit texture.
+   */
+  void FlushAccumulatedHitDraws();
+  /**
    * @brief Update audio playback state for this frame.
    */
   void UpdateAudio();
@@ -88,6 +96,8 @@ class SlamApp {
   void DrawFrame() const;
 
   AppConfig config_;
+  int windowWidth_ = 0;
+  int windowHeight_ = 0;
   core::WorldGrid world_;
   core::OccupancyGridMap slamMap_;
   core::SimulatedLidar lidar_;
@@ -99,6 +109,11 @@ class SlamApp {
   bool cursorLocked_ = false;
   bool movedThisFrame_ = false;
   bool collisionThisFrame_ = false;
+  bool wasAccumulating_ = false;
+  bool hitLayerReady_ = false;
+  RenderTexture2D hitLayer_{};
+  std::vector<unsigned char> hitPixelOccupancy_;
+  std::vector<Vector2> pendingAccumulatedDrawHits_;
   std::vector<Vector2> hitHistory_;
   std::vector<core::ScanSample> latestScan_;
   std::vector<render::PixelRay> latestRays_;

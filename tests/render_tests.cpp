@@ -81,6 +81,25 @@ void TestUpdateHitPointHistoryAccumulatesOrReplaces() {
   ASSERT_TRUE(accumulated.size() == 3U, "accumulate mode must merge history + current");
 }
 
+void TestTryMarkHitPixelDeduplicatesByPixelIndex() {
+  const int width = 8;
+  const int height = 6;
+  std::vector<unsigned char> occupancy(static_cast<std::size_t>(width * height), 0U);
+
+  ASSERT_TRUE(
+      slam::render::TryMarkHitPixel(occupancy, width, height, Vector2{3.0F, 4.0F}),
+      "first mark in-bounds must be inserted");
+  ASSERT_TRUE(
+      !slam::render::TryMarkHitPixel(occupancy, width, height, Vector2{3.0F, 4.0F}),
+      "second mark for same pixel must be deduplicated");
+  ASSERT_TRUE(
+      !slam::render::TryMarkHitPixel(occupancy, width, height, Vector2{-1.0F, 0.0F}),
+      "out-of-bounds point must be rejected");
+  ASSERT_TRUE(
+      !slam::render::TryMarkHitPixel(occupancy, width, height, Vector2{8.0F, 0.0F}),
+      "right-edge out-of-bounds point must be rejected");
+}
+
 }  // namespace
 
 int main() {
@@ -88,6 +107,7 @@ int main() {
       Run("Palette reference colors", TestPaletteUsesReferenceColors),
       Run("Scan endpoints", TestScanSamplesToPixelsReturnsExpectedEndpoints),
       Run("Hit history mode", TestUpdateHitPointHistoryAccumulatesOrReplaces),
+      Run("Hit pixel dedup", TestTryMarkHitPixelDeduplicatesByPixelIndex),
   };
 
   int failed = 0;

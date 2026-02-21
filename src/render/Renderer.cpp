@@ -91,4 +91,26 @@ std::vector<Vector2> UpdateHitPointHistory(
   return merged;
 }
 
+bool TryMarkHitPixel(std::vector<unsigned char>& occupancy, int width, int height, Vector2 point) {
+  if (width <= 0 || height <= 0) {
+    return false;
+  }
+  if (occupancy.size() < static_cast<std::size_t>(width * height)) {
+    return false;
+  }
+
+  const int x = static_cast<int>(point.x);
+  const int y = static_cast<int>(point.y);
+  if (x < 0 || y < 0 || x >= width || y >= height) {
+    return false;
+  }
+
+  const std::size_t index = static_cast<std::size_t>(y * width + x);
+  if (occupancy[index] != 0U) {
+    return false;
+  }
+  occupancy[index] = 1U;
+  return true;
+}
+
 }  // namespace slam::render

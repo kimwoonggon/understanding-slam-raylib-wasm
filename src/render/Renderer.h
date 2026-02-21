@@ -64,4 +64,14 @@ std::vector<Vector2> UpdateHitPointHistory(
     const std::vector<Vector2>& currentHits,
     bool accumulate);
 
+/**
+ * @brief Mark a pixel-space hit in occupancy grid if not previously present.
+ * @param occupancy Mutable occupancy buffer sized width*height.
+ * @param width Pixel width.
+ * @param height Pixel height.
+ * @param point Pixel-space point.
+ * @return True when point was newly marked; false when out of bounds or duplicate.
+ */
+bool TryMarkHitPixel(std::vector<unsigned char>& occupancy, int width, int height, Vector2 point);
+
 }  // namespace slam::render

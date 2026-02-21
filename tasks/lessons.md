@@ -29,3 +29,9 @@
 - Correction: Every encountered runtime/build error must be logged in an error report document.
 - Rule to prevent recurrence: Append each new failure with symptom, root cause, fix, and verification evidence in `tasks/reports/error-report.md` during the same work cycle.
 - Applied in: WASM audio/export/runtime and e2e stability fixes on 2026-02-20.
+
+## 2026-02-21
+
+- Correction: Performance-root-cause claims were challenged without an immediately shown duplicate-rate measurement.
+- Rule to prevent recurrence: When complexity is disputed (e.g., expected duplicate hit ratio), run and cite a direct probe that reports new-vs-duplicate ratios before finalizing conclusions.
+- Applied in: `feat/why-framedrops` investigation (green-dot accumulation FPS analysis).

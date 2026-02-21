@@ -46,3 +46,20 @@
   - Pre-test port cleanup added to test execution flow.
 - Verification:
   - Stable server startup during final verification runs.
+
+## 2026-02-21
+
+### 5) WASM telemetry toggle false-negative (`failed to enable accumulate mode`)
+- Symptom:
+  - `scripts/wasm_fps_telemetry.sh` initially failed with `failed to enable accumulate mode`.
+- Root cause:
+  - Telemetry script used `page.keyboard.press('g')` (very short key pulse), while app logic checks `IsKeyPressed(KEY_G)` per frame; short pulses could be missed in headless timing.
+- Fix:
+  - Switched telemetry toggle to reliable key hold sequence:
+    - `keyboard.down('g')` -> wait -> `keyboard.up('g')`
+  - Added retry/wait loop for `accumulateHits` debug-state confirmation.
+- Verification:
+  - `SAMPLE_SECONDS=20 ./scripts/wasm_fps_telemetry.sh` passed.
+  - Output included FPS/hit metrics:
+    - `wasm_fps samples=200 min=42.00 p50=55.00 p95=56.00 avg=54.98 max=56.00`
+    - `wasm_hits samples=200 start=96 end=4478 max=4478 growth=4382`
