@@ -8,6 +8,10 @@ This repository migrates `ref2` (pygame SLAM simulation) to **Raylib C++** first
 2. Harden behavior with deterministic tests.
 3. Build and run the same project as WebAssembly in Chrome.
 
+## Playing Demo
+
+![SLAM playing demo](docs/media/slam-playing.gif)
+
 Reference repositories:
 - `ref1`: pygame -> Raylib migration pattern reference
 - `ref2`: source pygame SLAM behavior/spec reference
