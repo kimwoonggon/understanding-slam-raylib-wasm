@@ -2,7 +2,6 @@
 #include <cstdlib>
 #include <functional>
 #include <iostream>
-#include <numbers>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -49,10 +48,11 @@ void TestPaletteUsesReferenceColors() {
 }
 
 void TestScanSamplesToPixelsReturnsExpectedEndpoints() {
+  constexpr double kPi = 3.14159265358979323846;
   const slam::core::RobotPose pose{5.0, 5.0, 0.0};
   const std::vector<slam::core::ScanSample> scan = {
       {.relativeAngle = 0.0, .distance = 3.0, .hit = true},
-      {.relativeAngle = std::numbers::pi / 2.0, .distance = 2.0, .hit = true},
+      {.relativeAngle = kPi / 2.0, .distance = 2.0, .hit = true},
   };
 
   const std::vector<slam::render::PixelRay> rays =

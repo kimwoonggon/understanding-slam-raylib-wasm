@@ -3,14 +3,9 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-# Try to auto-activate emsdk when this shell does not already expose emcc/emcmake.
-if ! command -v emcc >/dev/null 2>&1 || ! command -v emcmake >/dev/null 2>&1; then
-  EMSDK_CANDIDATE="${EMSDK:-$HOME/emsdk}"
-  if [[ -f "${EMSDK_CANDIDATE}/emsdk_env.sh" ]]; then
-    # shellcheck disable=SC1090
-    source "${EMSDK_CANDIDATE}/emsdk_env.sh" >/dev/null
-  fi
-fi
+# shellcheck disable=SC1091
+source "${ROOT_DIR}/scripts/ensure_emsdk_env.sh"
+slam_auto_activate_emsdk "${ROOT_DIR}" emcc emcmake || true
 
 # Auto-detect local raylib-wasm install if env var is not set.
 if [[ -z "${RAYLIB_WASM_ROOT:-}" ]]; then
@@ -23,12 +18,12 @@ fi
 missing=0
 
 if ! command -v emcc >/dev/null 2>&1; then
-  echo "[ERROR] emcc not found. Activate emsdk first (source emsdk_env.sh)." >&2
+  echo "[ERROR] emcc not found. Install emsdk or set EMSDK to a directory containing emsdk_env.sh." >&2
   missing=1
 fi
 
 if ! command -v emcmake >/dev/null 2>&1; then
-  echo "[ERROR] emcmake not found. Activate emsdk first (source emsdk_env.sh)." >&2
+  echo "[ERROR] emcmake not found. Install emsdk or set EMSDK to a directory containing emsdk_env.sh." >&2
   missing=1
 fi
 

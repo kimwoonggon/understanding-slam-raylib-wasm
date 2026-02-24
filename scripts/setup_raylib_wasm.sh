@@ -8,17 +8,12 @@ RAYLIB_BUILD_DIR="${RAYLIB_BUILD_DIR:-${RAYLIB_SRC_DIR}/build-wasm}"
 RAYLIB_WASM_ROOT="${RAYLIB_WASM_ROOT:-${ROOT_DIR}/.toolchains/raylib-wasm}"
 RAYLIB_REF="${RAYLIB_REF:-5.5}"
 
-# Try to auto-activate emsdk when this shell does not already expose emcc/emcmake.
-if ! command -v emcc >/dev/null 2>&1 || ! command -v emcmake >/dev/null 2>&1; then
-  EMSDK_CANDIDATE="${EMSDK:-$HOME/emsdk}"
-  if [[ -f "${EMSDK_CANDIDATE}/emsdk_env.sh" ]]; then
-    # shellcheck disable=SC1090
-    source "${EMSDK_CANDIDATE}/emsdk_env.sh" >/dev/null
-  fi
-fi
+# shellcheck disable=SC1091
+source "${ROOT_DIR}/scripts/ensure_emsdk_env.sh"
+slam_auto_activate_emsdk "${ROOT_DIR}" emcc emcmake || true
 
 if ! command -v emcc >/dev/null 2>&1 || ! command -v emcmake >/dev/null 2>&1; then
-  echo "[ERROR] emcc/emcmake not available. Install/activate emsdk first." >&2
+  echo "[ERROR] emcc/emcmake not available. Install emsdk or set EMSDK to a directory containing emsdk_env.sh." >&2
   exit 1
 fi
 

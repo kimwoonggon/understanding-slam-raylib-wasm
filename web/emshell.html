@@ -87,6 +87,26 @@
       Module.setStatus = (text) => {
         statusEl.textContent = text || "running";
       };
+
+      // iOS/Safari can require user-gesture audio unlock.
+      window.__slamAudioUnlockRequested = 0;
+      const requestAudioUnlock = () => {
+        window.__slamAudioUnlockRequested = 1;
+        const contexts = [];
+        if (typeof Module !== "undefined") {
+          if (Module.SDL2 && Module.SDL2.audioContext) contexts.push(Module.SDL2.audioContext);
+          if (Module.audioContext) contexts.push(Module.audioContext);
+        }
+        for (const ctx of contexts) {
+          if (ctx && typeof ctx.resume === "function" && ctx.state === "suspended") {
+            try { ctx.resume(); } catch (_) {}
+          }
+        }
+      };
+      canvas.addEventListener("touchstart", requestAudioUnlock, { passive: true });
+      canvas.addEventListener("mousedown", requestAudioUnlock, { passive: true });
+      window.addEventListener("keydown", requestAudioUnlock, { passive: true });
+
       window.Module = Module;
     </script>
     {{{ SCRIPT }}}

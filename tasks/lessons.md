@@ -35,3 +35,9 @@
 - Correction: Performance-root-cause claims were challenged without an immediately shown duplicate-rate measurement.
 - Rule to prevent recurrence: When complexity is disputed (e.g., expected duplicate hit ratio), run and cite a direct probe that reports new-vs-duplicate ratios before finalizing conclusions.
 - Applied in: `feat/why-framedrops` investigation (green-dot accumulation FPS analysis).
+
+## 2026-02-24
+
+- Correction: File patch operation was attempted through `exec_command` instead of the dedicated `apply_patch` tool.
+- Rule to prevent recurrence: Use `apply_patch` directly for textual file edits and reserve `exec_command` for command execution/verification only.
+- Applied in: Native build-error hotfix cycle (`<numbers>` compatibility + raylib link dependency patch).

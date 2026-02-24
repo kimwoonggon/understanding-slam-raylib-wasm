@@ -5,14 +5,9 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD_DIR="${BUILD_DIR:-${ROOT_DIR}/build-wasm}"
 BUILD_TYPE="${BUILD_TYPE:-Release}"
 
-# Try to auto-activate emsdk when missing in current shell.
-if ! command -v emcc >/dev/null 2>&1 || ! command -v emcmake >/dev/null 2>&1; then
-  EMSDK_CANDIDATE="${EMSDK:-$HOME/emsdk}"
-  if [[ -f "${EMSDK_CANDIDATE}/emsdk_env.sh" ]]; then
-    # shellcheck disable=SC1090
-    source "${EMSDK_CANDIDATE}/emsdk_env.sh" >/dev/null
-  fi
-fi
+# shellcheck disable=SC1091
+source "${ROOT_DIR}/scripts/ensure_emsdk_env.sh"
+slam_auto_activate_emsdk "${ROOT_DIR}" emcc emcmake || true
 
 # Auto-detect local raylib-wasm install if env var is not set.
 if [[ -z "${RAYLIB_WASM_ROOT:-}" ]]; then

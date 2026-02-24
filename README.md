@@ -47,7 +47,9 @@ brew install raylib
 
 ## WASM (Emscripten)
 
-- emsdk activated (`emcc`, `emcmake` available)
+- emsdk (`emcc`, `emcmake`) and raylib-wasm are required
+- easiest path: run the bootstrap script (no manual `source` required)
+  - `./scripts/setup_wasm_env.sh`
 - **raylib built for Emscripten/WebAssembly**
   - desktop raylib binary cannot be reused for WASM
 - optional env var:
@@ -183,28 +185,57 @@ ctest --test-dir build -R slam-render-tests --output-on-failure
 
 ## 7. WebAssembly Build and Run
 
-## Step A: Check prerequisites
+## Quick Start (recommended)
+
+```bash
+./scripts/run_wasm_chrome.sh
+```
+
+This script does all of the following:
+1. install/activate emsdk (if needed)
+2. build/install raylib-wasm (if needed)
+3. build wasm app
+4. build static server
+5. serve and print Chrome URL (`http://127.0.0.1:8080/slam-raylib.html`)
+
+Options:
+```bash
+./scripts/run_wasm_chrome.sh --host 0.0.0.0 --port 8080
+./scripts/run_wasm_chrome.sh --skip-setup
+```
+
+## Step-by-step (manual control)
+
+## Step A: Bootstrap environment
+
+```bash
+./scripts/setup_wasm_env.sh
+```
+
+Useful options:
+```bash
+./scripts/setup_wasm_env.sh --emsdk-dir /path/to/emsdk
+./scripts/setup_wasm_env.sh --emsdk-version 3.1.74
+./scripts/setup_wasm_env.sh --skip-raylib
+```
+
+## Step B: Check prerequisites
 
 ```bash
 ./scripts/check_wasm_prereqs.sh
 ```
 
-If raylib-wasm is not prepared yet:
-```bash
-./scripts/setup_raylib_wasm.sh
-```
-
-## Step B: Build wasm artifact
+## Step C: Build wasm artifact
 
 ```bash
 ./scripts/build_wasm.sh
 ```
 
-Expected output artifact:
+Expected output:
 - `build-wasm/slam-raylib.html`
 - related `.js`, `.wasm`, and preloaded assets
 
-## Step C: Serve and open in Chrome
+## Step D: Serve and open in Chrome
 
 ```bash
 cmake -S . -B build-release -DCMAKE_BUILD_TYPE=Release
@@ -221,6 +252,46 @@ Phone/LAN access:
 ```
 Then open `http://<your-computer-ip>:8080/slam-raylib.html` from phone on same network.
 
+Quick IP helper:
+```bash
+./scripts/print_access_ip.sh --port 8080
+```
+
+## LAN access by environment
+
+Detailed guide:
+- `docs/wsl-networking.md`
+
+### Linux (native, not WSL)
+
+1. Start server with `--host 0.0.0.0`.
+2. Print access IP/URL:
+```bash
+./scripts/print_access_ip.sh --port 8080
+```
+3. Open the printed URL on iPad.
+
+### WSL2 on Windows + iPad
+
+`hostname -I` in WSL returns internal NAT IP (usually `172.x.x.x`), which iPad cannot access directly.
+
+1. In WSL, start server with `--host 0.0.0.0`:
+```bash
+./scripts/run_wasm_chrome.sh --host 0.0.0.0 --port 8080
+```
+2. Print WSL/Windows IP candidates:
+```bash
+./scripts/print_access_ip.sh --port 8080
+```
+3. In Windows PowerShell (Admin), forward Windows port `8080` to WSL IP:
+```powershell
+$wslIp = "172.25.159.91"   # replace with your `hostname -I` value from WSL
+netsh interface portproxy add v4tov4 listenaddress=0.0.0.0 listenport=8080 connectaddress=$wslIp connectport=8080
+netsh advfirewall firewall add rule name="WSL 8080" dir=in action=allow protocol=TCP localport=8080
+```
+4. Find Windows Wi-Fi IPv4 (`ipconfig`) and open on iPad:
+`http://<windows-wifi-ip>:8080/slam-raylib.html`
+
 ## WASM UI Customization
 
 Primary file:
@@ -236,7 +307,7 @@ Where to modify:
   - runtime hotkey logic in `src/app/SlamApp.cpp` (`KEY_P`)
   - pointer-lock request/release bridge in the same file under `#ifdef EMSCRIPTEN`
 
-## Step D: WASM browser E2E smoke (headless)
+## Step E: WASM browser E2E smoke (headless)
 
 ```bash
 chmod +x scripts/wasm_e2e_smoke.sh
@@ -254,7 +325,7 @@ This verifies:
 
 ## Important WASM Notes
 
-1. Use emsdk shell/environment for all wasm commands.
+1. WASM scripts auto-activate emsdk when `emsdk_env.sh` is discoverable.
 2. Ensure raylib is wasm-compatible (do not link desktop `.dylib/.a` built for macOS target).
 3. Verify server serves `.wasm` as `application/wasm`.
 4. Run from HTTP(S), not `file://`.
@@ -269,10 +340,14 @@ This verifies:
 │   ├── maze.png
 │   └── sounds/
 ├── scripts/
+│   ├── ensure_emsdk_env.sh
+│   ├── setup_wasm_env.sh
 │   ├── check_wasm_prereqs.sh
 │   ├── build_wasm.sh
 │   ├── build_wasm_diff_trace.sh
 │   ├── setup_raylib_wasm.sh
+│   ├── run_wasm_chrome.sh
+│   ├── print_access_ip.sh
 │   ├── wasm_e2e_smoke.sh
 │   ├── e2e_compare_ref2_vs_raylib.py
 │   └── run_triad_e2e.sh
@@ -295,11 +370,28 @@ This verifies:
 
 ## 9. Troubleshooting
 
-## `emcc` not found
+## `emcc`/`em++` not found
 
-Activate emsdk first:
+Set emsdk location (if not in auto-discovery paths) and retry:
 ```bash
-source /path/to/emsdk/emsdk_env.sh
+export EMSDK=/path/to/emsdk
+./scripts/check_wasm_prereqs.sh
+```
+
+Or auto-bootstrap:
+```bash
+./scripts/setup_wasm_env.sh --emsdk-dir /path/to/emsdk
+```
+
+## `SyntaxError` in `emcc.py`/`em++.py` (`match ...`)
+
+Your Python runtime is too old for that emsdk release. Use one of:
+```bash
+# Option A: install Python 3.10+ and reactivate emsdk latest
+cd ~/emsdk && ./emsdk install latest && ./emsdk activate latest
+
+# Option B: use a Python 3.9-compatible emsdk release
+cd ~/emsdk && ./emsdk install 3.1.74 && ./emsdk activate 3.1.74
 ```
 
 ## raylib not found during native build
@@ -323,6 +415,32 @@ Verify files exist:
 - `assets/maze.png`
 - `assets/sounds/scan_loop.wav`
 - `assets/sounds/collision_beep.wav`
+
+## iPad cannot access WSL server
+
+Cause:
+- WSL IP (`172.x.x.x`) is private to Windows host.
+
+Fix:
+1. Start server with `--host 0.0.0.0` in WSL.
+2. Add `netsh interface portproxy ...` rule in Windows Admin PowerShell.
+3. Allow Windows Firewall inbound rule for that port.
+4. Use Windows Wi-Fi IP (not WSL IP) from `ipconfig` on iPad.
+
+## iPad has no sound (WASM)
+
+Checklist:
+1. Tap the canvas once after page load (required for iOS audio unlock policy).
+2. Verify device is not in silent mode and media volume is up.
+3. Confirm assets exist:
+   - `assets/sounds/scan_loop.wav`
+   - `assets/sounds/collision_beep.wav`
+4. Move the robot (`W/A/S/D` or drag) to trigger scan/collision sounds.
+5. Open browser console and inspect `window.__slamDebug`:
+   - `audioInitAttempted`
+   - `audioDeviceReady`
+   - `audioEnabled`
+   - `scanSoundReady`, `collisionSoundReady`
 
 ## 10. Engineering Workflow
 

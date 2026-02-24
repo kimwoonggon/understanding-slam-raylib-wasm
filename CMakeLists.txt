@@ -62,7 +62,18 @@ else()
   set(SLAM_RAYLIB_TARGET raylib)
 endif()
 
-target_link_libraries(slam-raylib PRIVATE ${SLAM_RAYLIB_TARGET})
+if(NOT EMSCRIPTEN)
+  find_package(Threads REQUIRED)
+endif()
+
+function(slam_link_raylib target_name)
+  target_link_libraries(${target_name} PRIVATE ${SLAM_RAYLIB_TARGET})
+  if(NOT EMSCRIPTEN AND UNIX AND NOT APPLE)
+    target_link_libraries(${target_name} PRIVATE Threads::Threads ${CMAKE_DL_LIBS})
+  endif()
+endfunction()
+
+slam_link_raylib(slam-raylib)
 
 # Emscripten-only linker contract for browser target.
 if(EMSCRIPTEN)
@@ -111,7 +122,7 @@ if(SLAM_BUILD_TESTS)
   )
   target_include_directories(slam-ui-tests PRIVATE src)
   target_compile_options(slam-ui-tests PRIVATE -Wall -Wextra -Wpedantic)
-  target_link_libraries(slam-ui-tests PRIVATE ${SLAM_RAYLIB_TARGET})
+  slam_link_raylib(slam-ui-tests)
   add_test(NAME slam-ui-tests COMMAND slam-ui-tests)
 
   add_executable(slam-render-tests
@@ -121,7 +132,7 @@ if(SLAM_BUILD_TESTS)
   )
   target_include_directories(slam-render-tests PRIVATE src)
   target_compile_options(slam-render-tests PRIVATE -Wall -Wextra -Wpedantic)
-  target_link_libraries(slam-render-tests PRIVATE ${SLAM_RAYLIB_TARGET})
+  slam_link_raylib(slam-render-tests)
   add_test(NAME slam-render-tests COMMAND slam-render-tests)
 
   add_executable(slam-world-loader-tests
@@ -132,7 +143,7 @@ if(SLAM_BUILD_TESTS)
   )
   target_include_directories(slam-world-loader-tests PRIVATE src)
   target_compile_options(slam-world-loader-tests PRIVATE -Wall -Wextra -Wpedantic)
-  target_link_libraries(slam-world-loader-tests PRIVATE ${SLAM_RAYLIB_TARGET})
+  slam_link_raylib(slam-world-loader-tests)
   add_test(NAME slam-world-loader-tests COMMAND slam-world-loader-tests)
 
   add_executable(slam-audio-tests

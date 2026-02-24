@@ -15,6 +15,10 @@
 - [x] Run WASM Chrome smoke validation after FPS optimization.
 - [x] Expose WASM debug telemetry fields for FPS/hit accumulation.
 - [x] Add and run long-session WASM FPS telemetry script (accumulate mode).
+- [x] Fix native Debug build break (`<numbers>` header + raylib static link deps) and verify `cmake --build build -j` passes.
+- [x] Improve WASM scripts to auto-discover/activate emsdk without manual sourcing; update README commands accordingly.
+- [x] Add one-command WASM environment bootstrap (emsdk + raylib-wasm) and one-command local Chrome run flow; document both in README.
+- [x] Add a dedicated markdown guide explaining Linux IP vs Windows LAN IP vs WSL networking path for iPad access.
 
 # Review
 

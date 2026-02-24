@@ -53,6 +53,60 @@ void EnsureWebCanvasFocusable() {
     }
   });
 }
+
+/**
+ * @brief Register browser gesture hooks to request audio unlock/initialization.
+ */
+void EnsureWebAudioUnlockHooks() {
+  EM_ASM({
+    if (typeof window === 'undefined') return;
+    if (window.__slamAudioHooked === 1) return;
+    window.__slamAudioHooked = 1;
+    window.__slamAudioUnlockRequested = 0;
+
+    const resumeKnownAudioContexts = () => {
+      const contexts = [];
+      if (typeof Module !== 'undefined') {
+        if (Module.SDL2 && Module.SDL2.audioContext) contexts.push(Module.SDL2.audioContext);
+        if (Module.audioContext) contexts.push(Module.audioContext);
+      }
+      if (window.AudioContext && window.__slamAudioContext instanceof window.AudioContext) {
+        contexts.push(window.__slamAudioContext);
+      }
+      for (const ctx of contexts) {
+        if (!ctx || typeof ctx.resume !== 'function') continue;
+        if (ctx.state === 'suspended') {
+          try { ctx.resume(); } catch (e) {}
+        }
+      }
+    };
+
+    const onUserGesture = () => {
+      window.__slamAudioUnlockRequested = 1;
+      resumeKnownAudioContexts();
+    };
+
+    if (typeof Module !== 'undefined' && Module.canvas) {
+      Module.canvas.addEventListener('touchstart', onUserGesture, { passive: true });
+      Module.canvas.addEventListener('mousedown', onUserGesture, { passive: true });
+    }
+    window.addEventListener('keydown', onUserGesture, { passive: true });
+  });
+}
+
+/**
+ * @brief Consume one pending browser gesture audio unlock request.
+ */
+bool ConsumeWebAudioUnlockRequest() {
+  return EM_ASM_INT({
+    if (typeof window === 'undefined') return 0;
+    if (window.__slamAudioUnlockRequested === 1) {
+      window.__slamAudioUnlockRequested = 0;
+      return 1;
+    }
+    return 0;
+  }) != 0;
+}
 #endif
 
 }  // namespace
@@ -74,6 +128,7 @@ SlamApp::SlamApp(const AppConfig& config)
   SetTargetFPS(config_.screen.fps);
 #ifdef EMSCRIPTEN
   EnsureWebCanvasFocusable();
+  EnsureWebAudioUnlockHooks();
 #endif
   controls_ = ui::CreateUiControlsForWindow(windowWidth_, windowHeight_);
   hitPixelOccupancy_.assign(static_cast<std::size_t>(windowWidth_ * windowHeight_), 0U);
@@ -205,9 +260,15 @@ void SlamApp::HandleInput() {
                                  IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT) ||
                                  IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT);
   const bool keyboardPressEvent = wPressed || sPressed || aPressed || dPressed;
+  const bool userInteractionEvent = leftClicked || leftDown || iPressed || mPressed || gPressed || keyboardPressEvent;
   const Vector2 mousePos = GetMousePosition();
 
-  if (!audioEnabled_ && (leftClicked || iPressed || mPressed || gPressed || keyboardPressEvent)) {
+  bool webAudioUnlockRequested = false;
+#ifdef EMSCRIPTEN
+  webAudioUnlockRequested = ConsumeWebAudioUnlockRequest();
+#endif
+
+  if (!audioEnabled_ && (userInteractionEvent || webAudioUnlockRequested)) {
     InitializeAudio();
   }
 
@@ -337,9 +398,11 @@ void SlamApp::PublishWebDebugState(bool hasKeyboardIntent, bool draggingNow) con
     window.__slamDebug.collisionAssetPresent = !!$7;
     window.__slamDebug.scanSoundReady = !!$8;
     window.__slamDebug.collisionSoundReady = !!$9;
-    window.__slamDebug.fps = $10;
-    window.__slamDebug.hitHistorySize = $11;
-    window.__slamDebug.accumulateHits = !!$12;
+    window.__slamDebug.audioInitAttempted = !!$10;
+    window.__slamDebug.audioDeviceReady = !!$11;
+    window.__slamDebug.fps = $12;
+    window.__slamDebug.hitHistorySize = $13;
+    window.__slamDebug.accumulateHits = !!$14;
   },
          poseXMilli,
          poseYMilli,
@@ -351,6 +414,8 @@ void SlamApp::PublishWebDebugState(bool hasKeyboardIntent, bool draggingNow) con
          collisionAssetPresent_ ? 1 : 0,
          scanSoundReady_ ? 1 : 0,
          collisionSoundReady_ ? 1 : 0,
+         audioInitAttempted_ ? 1 : 0,
+         IsAudioDeviceReady() ? 1 : 0,
          fps,
          hitHistorySize,
          accumulateHits_ ? 1 : 0);
